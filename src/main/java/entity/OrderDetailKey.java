@@ -18,6 +18,6 @@ public class OrderDetailKey implements Serializable {
 
     @Column(name = "order_id")
     private String orderId;
-    @Column(name = "menu_item_code")
-    private String menuItemCode;
+    @Column(name = "item_id")
+    private String itemCode;
 }

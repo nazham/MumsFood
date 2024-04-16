@@ -1,0 +1,22 @@
+.txt-input {
+    -fx-prompt-text-fill: #F7F9FF;
+    -fx-text-fill: #F7F9FF;
+    -fx-border-color: #F7F9FF;
+    -fx-border-radius: 10;
+    -fx-padding: 0 15 0 15;
+    -fx-border-width: 3;
+}
+
+#btnAddToCart, #btnPlaceOrder {
+    -fx-background-color: #FFF27A;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-font-size: 15;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+.cmbx {
+    -fx-background-color: #F7F9FF;
+    -fx-text-fill: #494A4D;
+}

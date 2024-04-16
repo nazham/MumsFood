@@ -1,0 +1,68 @@
+@import url('https://fonts.googleapis.com/css2?family=Open+Sans:wght@400;500;600;700&family=Orbitron:wght@700&display=swap');
+
+root {
+    -fx-font-family: 'Open Sans', sans-serif;
+    -fx-font-weight: 400;
+}
+
+AnchorPane {
+    -fx-background-color: #242529;
+}
+
+.nav-item {
+    -fx-border-radius: 15;
+    -fx-background-radius: 15;
+    -fx-background-color: #242529;
+    -fx-padding: 0 0 0 19;
+    -fx-cursor: hand;
+}
+
+.nav-item:hover {
+    -fx-background-color: #353537;
+}
+
+.active-nav-item {
+    -fx-background-color: #353537;
+}
+
+#btnLogout {
+    -fx-background-color: #FFF27A;
+    -fx-border-radius: 14;
+    -fx-background-radius: 14;
+    -fx-font-size: 15;
+    -fx-font-weight: 600;
+    -fx-cursor: hand;
+}
+
+#btnLogout:hover {
+    -fx-background-color: #494A4D;
+    -fx-text-fill: #F7F9FF;
+}
+
+#btnEdit {
+    -fx-border-width: 2;
+    -fx-border-color: #494A4D;
+    -fx-background-color: #242529;
+    -fx-border-radius: 20;
+    -fx-background-radius: 20;
+    -fx-cursor: hand;
+}
+
+#btnEdit:hover {
+    -fx-background-color: #494A4D;
+    -fx-text-fill: #F7F9FF;
+}
+
+#btnNotifications {
+    -fx-border-width: 2;
+    -fx-border-color: #494A4D;
+    -fx-background-color: #242529;
+    -fx-border-radius: 12;
+    -fx-background-radius: 12;
+    -fx-cursor: hand;
+}
+
+#btnNotifications:hover {
+    -fx-background-color: #494A4D;
+    -fx-border-color: #F7F9FF;
+}
