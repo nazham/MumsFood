@@ -32,14 +32,23 @@ public class CustomerDAOImpl implements CustomerDAO {
         Session session = HibernateUtil.getSession();
 
         Transaction transaction = session.beginTransaction();
-        Customer customer = session.find(Customer.class, entity.getCustomerId());
-        customer.setName(entity.getName());
-        customer.setAddress(entity.getAddress());
-        customer.setPhoneNumber(entity.getPhoneNumber());
-        session.save(customer);
-        transaction.commit();
-        session.close();
-        return true;
+        try {
+            Customer customer = session.find(Customer.class, entity.getCustomerId());
+            customer.setName(entity.getName());
+            customer.setAddress(entity.getAddress());
+            customer.setPhoneNumber(entity.getPhoneNumber());
+            session.update(customer);
+            transaction.commit(); // Commit the transaction
+            return true;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Rollback the transaction if an exception occurs
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            session.close();
+        }
     }
 
     @Override

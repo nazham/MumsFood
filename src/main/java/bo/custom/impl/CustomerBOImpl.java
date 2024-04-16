@@ -25,6 +25,7 @@ public class CustomerBOImpl implements CustomerBO {
     @Override
     public boolean updateCustomer(CustomerDTO dto) throws SQLException, ClassNotFoundException {
         return customerDao.update(new Customer(
+                Integer.parseInt(dto.getId()),
                 dto.getPhoneNumber(),
                 dto.getName(),
                 dto.getAddress()

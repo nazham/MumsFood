@@ -1,6 +1,7 @@
 package entity;
 
 
+import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
@@ -33,6 +34,13 @@ public class Customer {
     private List<Orders> orders = new ArrayList<>();
 
     public Customer(String phoneNumber, String name, String address) {
+        this.phoneNumber = phoneNumber;
+        this.name = name;
+        this.address = address;
+    }
+
+    public Customer(int customerId, String phoneNumber, String name, String address) {
+        this.customerId = customerId;
         this.phoneNumber = phoneNumber;
         this.name = name;
         this.address = address;

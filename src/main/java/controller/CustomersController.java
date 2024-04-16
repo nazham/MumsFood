@@ -8,6 +8,7 @@ import dao.util.BOType;
 import db.DBConnection;
 import dto.CustomerDTO;
 import dto.tm.CustomerTM;
+import entity.Customer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -64,16 +65,13 @@ public class CustomersController implements Initializable {
     private JFXButton btnEdit;
 
     @FXML
-    private JFXTextField txtId;
-
-    @FXML
     private JFXTextField txtName;
 
     @FXML
-    private JFXTextField txtAddress;
+    private JFXTextField txtPhnNum;
 
     @FXML
-    private JFXTextField txtSalary;
+    private JFXTextField txtAddress;
 
     @FXML
     private JFXTextField txtSearch;
@@ -82,19 +80,19 @@ public class CustomersController implements Initializable {
     private TableView<CustomerTM> tblCustomers;
 
     @FXML
-    private TableColumn colId;
+    private TableColumn<?, ?> colId;
 
     @FXML
-    private TableColumn colName;
+    private TableColumn<?, ?> colName;
 
     @FXML
-    private TableColumn colAddress;
+    private TableColumn<?, ?> colPhnNum;
 
     @FXML
-    private TableColumn colSalary;
+    private TableColumn<?, ?> colAddress;
 
     @FXML
-    private TableColumn colOption;
+    private TableColumn<?, ?> colOption;
 
     @FXML
     private JFXButton btnSave;
@@ -150,14 +148,17 @@ public class CustomersController implements Initializable {
     public void initialize(URL url, ResourceBundle resourceBundle) {
         colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colName.setCellValueFactory(new PropertyValueFactory<>("name"));
+        colPhnNum.setCellValueFactory(new PropertyValueFactory<>("phoneNumber"));
         colAddress.setCellValueFactory(new PropertyValueFactory<>("address"));
-        colSalary.setCellValueFactory(new PropertyValueFactory<>("salary"));
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
         loadCustomers();
 
         tblCustomers.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            setData(newValue);
+            if (newValue != null) {
+                setData(newValue);
+            }
         });
+
     }
 
     private void loadCustomers() {
@@ -189,11 +190,9 @@ public class CustomersController implements Initializable {
 
     private void setData(CustomerTM newValue) {
         if (newValue != null) {
-            txtId.setEditable(false);
-            txtId.setText(newValue.getId());
             txtName.setText(newValue.getName());
+            txtPhnNum.setText(newValue.getPhoneNumber());
             txtAddress.setText(newValue.getAddress());
-            txtSalary.setText(String.valueOf(newValue.getPhoneNumber()));
         }
     }
 
@@ -206,7 +205,11 @@ public class CustomersController implements Initializable {
             } else {
                 new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
             }
+        } catch (NumberFormatException e) {
+            // Handle invalid ID format
+            new Alert(Alert.AlertType.ERROR, "Invalid customer ID format").show();
         } catch (ClassNotFoundException | SQLException e) {
+            // Handle other exceptions
             e.printStackTrace();
         }
     }
@@ -219,8 +222,8 @@ public class CustomersController implements Initializable {
             boolean isSaved = customerBO.saveCustomer(
                 new CustomerDTO(
                     txtName.getText(),
-                    txtAddress.getText(),
-                    txtSalary.getText()
+                    txtPhnNum.getText(),
+                    txtAddress.getText()
                 )
             );
             if (isSaved) {
@@ -237,57 +240,70 @@ public class CustomersController implements Initializable {
 
     private void clearFields() {
         tblCustomers.refresh();
-        txtId.clear();
         txtName.clear();
         txtAddress.clear();
-        txtSalary.clear();
-        txtId.setEditable(true);
+        txtPhnNum.clear();
     }
 
-    private boolean validateSalary() {
-        double salary;
-        try {
-            salary = Double.parseDouble(txtSalary.getText());
-        } catch (Exception e) {
+    private boolean validatePhoneNumber() {
+        Pattern pattern = Pattern.compile("^07\\d{8}$");
+        Matcher matcher = pattern.matcher(txtPhnNum.getText());
+
+        if (matcher.matches()) {
+            return true;
+        }
+
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Invalid Phone Number");
+        alert.setHeaderText(null);
+        alert.setContentText("Please enter a valid phone number starting with '07' and containing 10 digits");
+        alert.showAndWait();
+        return false;
+    }
+
+    private boolean validateName() {
+        String name = txtName.getText();
+        if (name.trim().isEmpty()) {
             Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid salary");
+            alert.setTitle("Invalid Name");
             alert.setHeaderText(null);
-            alert.setContentText("Please enter a valid salary");
+            alert.setContentText("Please enter a name");
             alert.showAndWait();
             return false;
         }
         return true;
     }
 
-    private boolean validateId() {
-        Pattern pattern = Pattern.compile("^C[0-9]{3}$");
-        Matcher matcher = pattern.matcher(txtId.getText());
-
-        if (matcher.find() && matcher.group().equals(txtId.getText())) {
-            return true;
+    private boolean validateAddress() {
+        String address = txtAddress.getText();
+        if (address.trim().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Address");
+            alert.setHeaderText(null);
+            alert.setContentText("Please enter an address");
+            alert.showAndWait();
+            return false;
         }
-
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Invalid ID");
-        alert.setHeaderText(null);
-        alert.setContentText("Please enter a valid ID");
-        alert.showAndWait();
-        return false;
+        return true;
     }
 
+
     private boolean isAnyInputDataInvalid() {
-        return !validateId() | !validateSalary();
+        return !validateName() | !validatePhoneNumber() | !validateAddress();
     }
 
     public void updateCustomer() {
         if (isAnyInputDataInvalid()) {
             return;
         }
+
+        CustomerTM selectedCustomer = tblCustomers.getSelectionModel().getSelectedItem();
         try {
-            boolean isUpdated = customerBO.updateCustomer(new CustomerDTO(txtId.getText(),
+            boolean isUpdated = customerBO.updateCustomer(new CustomerDTO(
+                    selectedCustomer.getId(),
                     txtName.getText(),
-                    txtAddress.getText(),
-                    txtSalary.getText()
+                    txtPhnNum.getText(),
+                    txtAddress.getText()
             ));
             if (isUpdated) {
                 new Alert(Alert.AlertType.INFORMATION, "Customer Updated!").show();
