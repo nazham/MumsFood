@@ -55,7 +55,7 @@ public class CustomerDAOImpl implements CustomerDAO {
     public boolean delete(String value) throws SQLException, ClassNotFoundException {
         Session session = HibernateUtil.getSession();
         Transaction transaction = session.beginTransaction();
-        session.delete(session.find(Customer.class,value));
+        session.delete(session.find(Customer.class,Integer.parseInt(value)));
         transaction.commit();
         session.close();
         return true;

@@ -156,6 +156,9 @@ public class CustomersController implements Initializable {
         tblCustomers.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue != null) {
                 setData(newValue);
+                btnSave.setDisable(true); // Disable save button when a record is selected
+            } else {
+                btnSave.setDisable(false); // Enable save button when no record is selected
             }
         });
 
