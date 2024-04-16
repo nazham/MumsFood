@@ -152,7 +152,7 @@ public class PlaceOrderFormController {
 
     public void addToCartOnAction(ActionEvent actionEvent) {
         try {
-            double amount = itemDao.getItem(cmbCode.getValue().toString()).getQty()* Integer.parseInt(txtQty.getText());
+            double amount = itemDao.getItem(cmbCode.getValue().toString()).getUnitPrice()* Integer.parseInt(txtQty.getText());
             //changed .getUnitPrice() to getQty() due to swap in the order table
             JFXButton btn = new JFXButton("Delete");
 
@@ -220,8 +220,11 @@ public class PlaceOrderFormController {
             try {
                 boolean isSaved = orderBo.saveOrder(new OrderDto(
                         lblOrderId.getText(),
-                        LocalDateTime.now().format(DateTimeFormatter.ofPattern("YYYY-MM-dd")),
+                        LocalDateTime.now(),
                         cmbId.getValue().toString(),
+                        Double.parseDouble(lblTotal.getText()),
+                        "Dine-In",
+                        "U001",
                         list
                    ));
                 if (isSaved){

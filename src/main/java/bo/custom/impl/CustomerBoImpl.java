@@ -16,20 +16,18 @@ public class CustomerBoImpl implements CustomerBo {
     @Override
     public boolean saveCustomer(CustomerDto dto) throws SQLException, ClassNotFoundException {
         return customerDao.save(new Customer(
-                dto.getId(),
+                dto.getPhoneNumber(),
                 dto.getName(),
-                dto.getAddress(),
-                dto.getSalary()
+                dto.getAddress()
         ));
     }
 
     @Override
     public boolean updateCustomer(CustomerDto dto) throws SQLException, ClassNotFoundException {
         return customerDao.update(new Customer(
-                dto.getId(),
+                dto.getPhoneNumber(),
                 dto.getName(),
-                dto.getAddress(),
-                dto.getSalary()
+                dto.getAddress()
         ));
     }
 
@@ -44,10 +42,10 @@ public class CustomerBoImpl implements CustomerBo {
         List<CustomerDto> list = new ArrayList<>();
         for (Customer customer:entityList) {
             list.add(new CustomerDto(
-                    customer.getId(),
+                    Integer.toString(customer.getCustomerId()),
                     customer.getName(),
-                    customer.getAddress(),
-                    customer.getSalary()
+                    customer.getPhoneNumber(),
+                    customer.getAddress()
             ));
         }
         return list;

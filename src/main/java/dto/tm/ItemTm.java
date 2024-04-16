@@ -14,13 +14,13 @@ public class ItemTm extends RecursiveTreeObject<ItemTm> {
     private String code;
     private String desc;
     private Double unitPrice;
-    private int qty;
+    private String categoryId;
     private JFXButton btn;
 
-    public ItemTm(String code, String desc, Double unitPrice, int qty) {
+    public ItemTm(String code, String desc, Double unitPrice, String categoryId) {
         this.code = code;
         this.desc = desc;
         this.unitPrice = unitPrice;
-        this.qty = qty;
+        this.categoryId = categoryId;
     }
 }

@@ -10,20 +10,21 @@ import javax.persistence.*;
 @Getter
 @ToString
 @Entity
+@Table(name = "order_detail")
 public class OrderDetail {
     @EmbeddedId
     private OrderDetailKey id;
 
     @ManyToOne
-    @MapsId("itemCode")
-    @JoinColumn(name = "item_code")
-    Item item;
+    @MapsId("ItemId")
+    @JoinColumn(name = "item_id")
+    private Item item;
 
     @ManyToOne
     @MapsId("orderId")
     @JoinColumn(name = "order_id")
-    Orders orders;
+    private Orders orders;
 
     private int qty;
-    private double unitPrice;
+//    private double unitPrice;
 }

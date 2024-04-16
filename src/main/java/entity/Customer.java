@@ -5,9 +5,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -18,18 +16,25 @@ import java.util.List;
 @Entity
 public class Customer {
     @Id
-    private String id;
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int customerId;
+
+    @Column(name = "phone_number")
+    private String phoneNumber;
+
+    @Column(name = "name")
     private String name;
+
+    @Column(name = "address")
     private String address;
-    private double salary;
 
     @OneToMany(mappedBy = "customer")
     private List<Orders> orders = new ArrayList<>();
 
-    public Customer(String id, String name, String address, double salary) {
-        this.id = id;
+    public Customer(String phoneNumber, String name, String address) {
+        this.phoneNumber = phoneNumber;
         this.name = name;
         this.address = address;
-        this.salary = salary;
     }
 }

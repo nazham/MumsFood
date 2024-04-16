@@ -2,6 +2,7 @@ package dto;
 
 import lombok.*;
 
+
 @AllArgsConstructor
 @NoArgsConstructor
 @ToString
@@ -12,8 +13,12 @@ import lombok.*;
 public class CustomerDto {
     private String id;
     private String name;
+    private String phoneNumber;
     private String address;
-    private double salary;
 
-
+    public CustomerDto(String name, String phoneNumber, String address) {
+        this.name = name;
+        this.phoneNumber = phoneNumber;
+        this.address = address;
+    }
 }

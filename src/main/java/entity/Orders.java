@@ -6,6 +6,7 @@ import lombok.Setter;
 import lombok.ToString;
 
 import javax.persistence.*;
+import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -16,8 +17,21 @@ import java.util.List;
 @Entity
 public class Orders {
     @Id
+    @Column(name = "id")
     private String orderId;
-    private String date;
+
+    @Column(name = "date_time")
+    private LocalDateTime dateTime;
+
+    @Column(name = "order_type")
+    private String orderType;
+
+    @Column(name = "total_amount")
+    private Double totalAmount;
+
+    @ManyToOne
+    @JoinColumn(name = "user_id")
+    private User user;
 
     @ManyToOne
     @JoinColumn(name = "customer_id")
@@ -26,8 +40,10 @@ public class Orders {
     @OneToMany(mappedBy = "orders")
     private List<OrderDetail> orderDetails = new ArrayList<>();
 
-    public Orders(String orderId, String date) {
+    public Orders(String orderId, LocalDateTime dateTime, String orderType, Double totalAmount) {
         this.orderId = orderId;
-        this.date = date;
+        this.dateTime = dateTime;
+        this.orderType = orderType;
+        this.totalAmount = totalAmount;
     }
 }

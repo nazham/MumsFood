@@ -117,7 +117,7 @@ public class ItemFormController {
             txtCode.setText(newValue.getCode());
             txtDesc.setText(newValue.getDesc());
             txtUnitPrice.setText(String.valueOf(newValue.getUnitPrice()));
-            txtQty.setText(String.valueOf(newValue.getQty()));
+            txtQty.setText(String.valueOf(newValue.getCategoryId()));
         }
     }
 
@@ -133,7 +133,7 @@ public class ItemFormController {
                         dto.getCode(),
                         dto.getDesc(),
                         dto.getUnitPrice(),
-                        dto.getQty(),
+                        dto.getCategoryId(),
                         btn
                 );
                 btn.setOnAction(actionEvent -> {
@@ -184,7 +184,7 @@ public class ItemFormController {
             boolean isSaved = itemBo.saveItem(new ItemDto(txtCode.getText(),
                     txtDesc.getText(),
                     Double.parseDouble(txtUnitPrice.getText()),
-                    Integer.parseInt(txtQty.getText())
+                    txtQty.getText()
             ));
 
 
@@ -219,7 +219,7 @@ public class ItemFormController {
             boolean isUpdated = itemBo.updateItem(new ItemDto(txtCode.getText(),
                     txtDesc.getText(),
                     Double.parseDouble(txtUnitPrice.getText()),
-                    Integer.parseInt(txtQty.getText())
+                    txtQty.getText()
             ));
 
             if (isUpdated){

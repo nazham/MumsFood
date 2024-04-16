@@ -2,9 +2,15 @@ package dao.custom.impl;
 
 import dao.custom.ItemDao;
 import dao.util.CrudUtil;
+import dao.util.HibernateUtil;
 import db.DBConnection;
 import dto.ItemDto;
+import entity.Category;
+import entity.Customer;
 import entity.Item;
+import org.hibernate.Session;
+import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -24,43 +30,44 @@ public class ItemDaoImpl implements ItemDao {
                     resultSet.getString(1),
                     resultSet.getString(2),
                     resultSet.getDouble(3),
-                    resultSet.getInt(4)
+                    resultSet.getString(4)
 
             );
         }
         return null;
     }
 
-//    @Override
-//    public List<ItemDto> allItems() throws SQLException, ClassNotFoundException {
-//        List<ItemDto> list = new ArrayList<>();
-//        String sql = "SELECT * FROM item";
-//        PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
-//        ResultSet resultSet = pstm.executeQuery();
-//        while (resultSet.next()){
-//            list.add(new ItemDto(
-//                    resultSet.getString(1),
-//                    resultSet.getString(2),
-//                    resultSet.getDouble(3),
-//                    resultSet.getInt(4)
-//
-//            ));
-//        }
-//        return list;
-//    }
-
     @Override
     public boolean save(Item entity) throws SQLException, ClassNotFoundException {
-        String sql = "INSERT INTO item VALUES(?,?,?,?)";
+        try (Session session = HibernateUtil.getSession()) {
+            Transaction transaction = session.beginTransaction();
 
-        return CrudUtil.execute(sql,entity.getCode(),entity.getDescription(),entity.getQtyOnHand(),entity.getUnitPrice());
-        //changed due to swap in Qty & UnitPrice
+            // Retrieve the associated Category entity using its ID
+            Category category = session.find(Category.class, entity.getCategory().getCategoryId());
+
+            // Create a new Item entity instance
+            Item item = new Item();
+            item.setCode(entity.getCode());
+            item.setDescription(entity.getDescription());
+            item.setPrice(entity.getPrice());
+            item.setCategory(category);
+
+            // Save the Item entity
+            session.save(item);
+
+            transaction.commit();
+            return true;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 
     @Override
     public boolean update(Item entity) throws SQLException, ClassNotFoundException {
-        String sql = "UPDATE Item SET Description=?, UnitPrice=?, qtyOnHand=? WHERE code=?";
-        return CrudUtil.execute(sql, entity.getDescription(),entity.getUnitPrice(),entity.getQtyOnHand(),entity.getCode());
+//        String sql = "UPDATE Item SET Description=?, Price=?, qtyOnHand=? WHERE code=?";
+//        return CrudUtil.execute(sql, entity.getDescription(),entity.getPrice(),entity.getQtyOnHand(),entity.getCode());
+        return false;
     }
 
     @Override
@@ -71,18 +78,23 @@ public class ItemDaoImpl implements ItemDao {
 
     @Override
     public List<Item> getAll() throws SQLException, ClassNotFoundException {
-        List<Item> list = new ArrayList<>();
-        String sql = "SELECT * FROM item";
-        ResultSet resultSet = CrudUtil.execute(sql);
-        while (resultSet.next()){
-            list.add(new Item(
-                    resultSet.getString(1),
-                    resultSet.getString(2),
-                    resultSet.getDouble(4), // Changed 3->4 due to Swap in UnitPrice & QTYOnHand in ItemTable
-                    resultSet.getInt(3)
-
-            ));
-        }
+//        List<Item> list = new ArrayList<>();
+//        String sql = "SELECT * FROM item";
+//        ResultSet resultSet = CrudUtil.execute(sql);
+//        while (resultSet.next()){
+//            list.add(new Item(
+//                    resultSet.getInt(1),
+//                    resultSet.getString(2),
+//                    resultSet.getString(4), // Changed 3->4 due to Swap in UnitPrice & QTYOnHand in ItemTable
+//                    resultSet.getInt(3)
+//
+//            ));
+//        }
+//        return list;
+        Session session = HibernateUtil.getSession();
+        Query query = session.createQuery("FROM Item");
+        List<Item> list = query.list();
+        session.close();
         return list;
     }
 }

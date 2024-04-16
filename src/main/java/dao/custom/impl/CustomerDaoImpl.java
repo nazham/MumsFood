@@ -32,10 +32,10 @@ public class CustomerDaoImpl implements CustomerDao {
         Session session = HibernateUtil.getSession();
 
         Transaction transaction = session.beginTransaction();
-        Customer customer = session.find(Customer.class, entity.getId());
+        Customer customer = session.find(Customer.class, entity.getCustomerId());
         customer.setName(entity.getName());
         customer.setAddress(entity.getAddress());
-        customer.setSalary(entity.getSalary());
+        customer.setPhoneNumber(entity.getPhoneNumber());
         session.save(customer);
         transaction.commit();
         session.close();

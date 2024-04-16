@@ -82,7 +82,7 @@ public class CustomerFormController {
             txtId.setText(newValue.getId());
             txtName.setText(newValue.getName());
             txtAddress.setText(newValue.getAddress());
-            txtSalary.setText(String.valueOf(newValue.getSalary()));
+            txtSalary.setText(String.valueOf(newValue.getPhoneNumber()));
         }
     }
 
@@ -97,8 +97,8 @@ public class CustomerFormController {
                 CustomerTm c = new CustomerTm(
                         dto.getId(),
                         dto.getName(),
+                        dto.getPhoneNumber(),
                         dto.getAddress(),
-                        dto.getSalary(),
                         btn
                 );
                 btn.setOnAction(actionEvent -> {
@@ -135,10 +135,10 @@ public class CustomerFormController {
     @FXML
     void saveButtonOnAction(ActionEvent event) {
         try {
-            boolean isSaved = customerBo.saveCustomer(new CustomerDto(txtId.getText(),
+            boolean isSaved = customerBo.saveCustomer(new CustomerDto(
                     txtName.getText(),
                     txtAddress.getText(),
-                    Double.parseDouble(txtSalary.getText())
+                    txtSalary.getText()
             ));
 
             if (isSaved){
@@ -175,10 +175,10 @@ public class CustomerFormController {
     @FXML
     void updateButtonOnAction(ActionEvent event) {
         try {
-            boolean isUpdated = customerBo.updateCustomer(new CustomerDto(txtId.getText(),
+            boolean isUpdated = customerBo.updateCustomer(new CustomerDto(
                     txtName.getText(),
                     txtAddress.getText(),
-                    Double.parseDouble(txtSalary.getText())
+                    txtSalary.getText()
             ));
             if (isUpdated){
                 new Alert(Alert.AlertType.INFORMATION,"Customer Updated!").show();

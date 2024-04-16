@@ -4,9 +4,7 @@ import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
 
-import javax.persistence.Entity;
-import javax.persistence.Id;
-import javax.persistence.OneToMany;
+import javax.persistence.*;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,17 +15,24 @@ import java.util.List;
 @Entity
 public class Item {
     @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    @Column(name = "id")
+    private int itemId;
+
     private String code;
     private String description;
-    private double unitPrice;
-    private int qtyOnHand;
+    private double price;
+
+    @ManyToOne
+    @JoinColumn(name = "category_id")
+    private Category category;
 
     @OneToMany(mappedBy = "item")
     private List<OrderDetail> orderDetails = new ArrayList<>();
-    public Item(String code, String description, double unitPrice, int qtyOnHand) {
+
+    public Item(String code, String description, double price) {
         this.code = code;
         this.description = description;
-        this.unitPrice = unitPrice;
-        this.qtyOnHand = qtyOnHand;
+        this.price = price;
     }
 }

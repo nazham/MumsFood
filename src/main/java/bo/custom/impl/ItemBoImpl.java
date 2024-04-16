@@ -20,8 +20,7 @@ public class ItemBoImpl implements ItemBo {
         return itemDao.save(new Item(
                 dto.getCode(),
                 dto.getDesc(),
-                dto.getUnitPrice(),
-                dto.getQty()
+                dto.getUnitPrice()
         ));
     }
 
@@ -30,8 +29,7 @@ public class ItemBoImpl implements ItemBo {
         return itemDao.update(new Item(
                 dto.getCode(),
                 dto.getDesc(),
-                dto.getUnitPrice(),
-                dto.getQty()
+                dto.getUnitPrice()
         ));
     }
 
@@ -44,12 +42,12 @@ public class ItemBoImpl implements ItemBo {
     public List<ItemDto> allItems() throws SQLException, ClassNotFoundException {
         List<Item> entityList = itemDao.getAll();
         List<ItemDto> list = new ArrayList<>();
-        for (Item item:entityList) {
+        for (Item item :entityList) {
             list.add(new ItemDto(
                     item.getCode(),
                     item.getDescription(),
-                    item.getUnitPrice(),
-                    item.getQtyOnHand()
+                    item.getPrice(),
+                    item.getCategory().getName()
             ));
         }
         return list;

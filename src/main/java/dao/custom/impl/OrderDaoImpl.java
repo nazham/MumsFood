@@ -13,6 +13,8 @@ import org.hibernate.Transaction;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.sql.Timestamp;
+import java.time.LocalDateTime;
 import java.util.List;
 
 public class OrderDaoImpl implements OrderDao {
@@ -20,14 +22,19 @@ public class OrderDaoImpl implements OrderDao {
 
     @Override
     public OrderDto getLastOrder() throws SQLException, ClassNotFoundException {
-        String sql = "SELECT * FROM orders ORDER BY orderId DESC LIMIT 1";
+        String sql = "SELECT * FROM order ORDER BY orderId DESC LIMIT 1";
         PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
         ResultSet resultSet = pstm.executeQuery();
         if (resultSet.next()){
+            Timestamp timestamp = resultSet.getTimestamp(2);
+            LocalDateTime dateTime = timestamp.toLocalDateTime();
             return  new OrderDto(
                     resultSet.getString(1),
-                    resultSet.getString(2),
+                    dateTime,
                     resultSet.getString(3),
+                    resultSet.getDouble(4),
+                    resultSet.getString(5),
+                    resultSet.getString(6),
                     null
 
             );
@@ -39,12 +46,14 @@ public class OrderDaoImpl implements OrderDao {
     public boolean save(OrderDto dto) throws SQLException, ClassNotFoundException {
         Session session = HibernateUtil.getSession();
         Transaction transaction = session.beginTransaction();
-        Orders order = new Orders(
+        Orders orders = new Orders(
                 dto.getOrderId(),
-                dto.getDate()
+                dto.getDateTime(),
+                dto.getOrderType(),
+                dto.getTotalAmount()
         );
-        order.setCustomer(session.find(Customer.class,dto.getCusId()));
-        session.save(order);
+        orders.setCustomer(session.find(Customer.class,dto.getCusId()));
+        session.save(orders);
 
         List<OrderDetailsDto> list = dto.getList(); //dto type
 
@@ -52,9 +61,8 @@ public class OrderDaoImpl implements OrderDao {
             OrderDetail orderDetail = new OrderDetail(
                     new OrderDetailKey(detailDto.getOrderId(), detailDto.getItemCode()),
                     session.find(Item.class, detailDto.getItemCode()),
-                    order,
-                    detailDto.getQty(),
-                    detailDto.getUnitPrice()
+                    orders,
+                    detailDto.getQty()
             );
             session.save(orderDetail);
         }

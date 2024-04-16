@@ -15,6 +15,6 @@ public class ItemDto {
     private String code;
     private String desc;
     private double unitPrice;
-    private int qty;
+    private String categoryId;
 
 }
