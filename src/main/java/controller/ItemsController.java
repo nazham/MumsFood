@@ -1,11 +1,14 @@
 package controller;
 
 import bo.BOFactory;
+import bo.custom.CategoryBO;
 import bo.custom.ItemBO;
-import bo.custom.impl.ItemBOImpl;
 import com.jfoenix.controls.JFXButton;
+import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import dao.util.BOType;
+import dto.CategoryDTO;
+import dto.CustomerDTO;
 import dto.ItemDTO;
 import dto.tm.ItemTM;
 import javafx.collections.FXCollections;
@@ -21,8 +24,6 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.stage.Stage;
-import dao.custom.ItemDAO;
-import dao.custom.impl.ItemDAOImpl;
 
 import java.io.IOException;
 import java.net.URL;
@@ -35,45 +36,74 @@ import java.util.regex.Pattern;
 
 public class ItemsController implements Initializable {
     @FXML
-    private TableView<ItemTM> tblItems;
-    @FXML
-    private TableColumn colCode;
-    @FXML
-    private TableColumn colDescription;
-    @FXML
-    private TableColumn colUnitPrice;
-    @FXML
-    private TableColumn colQtyOnHand;
-    @FXML
-    private TableColumn colOption;
-    @FXML
-    private JFXButton btnNotifications;
-    @FXML
-    private JFXButton btnLogout;
-    @FXML
-    private JFXButton btnEdit;
-    @FXML
-    private JFXButton btnSettings;
-    @FXML
-    private JFXButton btnPlaceOrders;
-    @FXML
-    private JFXButton btnCustomers;
-    @FXML
-    private JFXButton btnOrders;
+    private JFXButton btnDashboard;
+
     @FXML
     private JFXButton btnItems;
+
     @FXML
-    private JFXButton btnDashboard;
+    private JFXButton btnOrders;
+
     @FXML
-    private JFXTextField txtCode;
+    private JFXButton btnCustomers;
+
+    @FXML
+    private JFXButton btnPlaceOrders;
+
+    @FXML
+    private JFXButton btnSettings;
+
+    @FXML
+    private JFXButton btnLogout;
+
+    @FXML
+    private JFXButton btnNotifications;
+
+    @FXML
+    private JFXButton btnEdit;
+
     @FXML
     private JFXTextField txtDescription;
-    @FXML
-    private JFXTextField txtQty;
+
     @FXML
     private JFXTextField txtUnitPrice;
+
     @FXML
     private JFXTextField txtSearch;
+
+    @FXML
+    private TableView<ItemTM> tblItems;
+
+    @FXML
+    private TableColumn<?, ?> colCode;
+
+    @FXML
+    private TableColumn<?, ?> colDescription;
+
+    @FXML
+    private TableColumn<?, ?> colUnitPrice;
+
+    @FXML
+    private TableColumn<?, ?> colCategory;
+
+    @FXML
+    private TableColumn<?, ?> colOption;
+
+    @FXML
+    private JFXButton btnSave;
+
+    @FXML
+    private JFXButton btnUpdate;
+
+    @FXML
+    private JFXTextField txtCode;
+
+    @FXML
+    private JFXComboBox<String> cmbCategory;
+
+    private List<CategoryDTO> categories;
+
+    private CategoryBO categoryBO = BOFactory.getInstance().getBo(BOType.CATEGORY);
 
     private final ItemBO itemBO = BOFactory.getInstance().getBo(BOType.ITEM);
 
@@ -151,9 +181,35 @@ public class ItemsController implements Initializable {
         colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("desc"));
         colUnitPrice.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
-        colQtyOnHand.setCellValueFactory(new PropertyValueFactory<>("qty"));
+        colCategory.setCellValueFactory(new PropertyValueFactory<>("categoryId"));
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
         loadItems();
+
+        try {
+            categories = categoryBO.allCategory();
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        } catch (ClassNotFoundException e) {
+            e.printStackTrace();
+        }
+
+        ObservableList<String> list = FXCollections.observableArrayList();
+
+        for (CategoryDTO categoryDTO : categories) {
+            list.add(categoryDTO.getCategoryName());
+        }
+
+        cmbCategory.setItems(list);
+
+        cmbCategory.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
+            // No need to iterate over categories here, since the ComboBox is already populated with category names
+            // You can directly set the value to the ComboBox
+            if (newValue != null) {
+                cmbCategory.setValue(newValue.toString());
+            }
+        });
+
+
 
         tblItems.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             setData(newValue);
@@ -166,28 +222,21 @@ public class ItemsController implements Initializable {
             txtCode.setText(newValue.getCode());
             txtDescription.setText(newValue.getDesc());
             txtUnitPrice.setText(String.valueOf(newValue.getUnitPrice()));
-            txtQty.setText(String.valueOf(newValue.getCategoryId()));
+            cmbCategory.setValue(newValue.getCategoryId());
         }
     }
 
-    private boolean validateQtyOnHand() {
-        Pattern pattern = Pattern.compile("^[0-9]+$");
-        Matcher matcher = pattern.matcher(txtQty.getText());
-
-        if (
-                matcher.find()
-                        && matcher.group().equals(txtQty.getText())
-                        && Integer.parseInt(txtQty.getText()) >= 0
-        ) {
-            return true;
+    private boolean validateDescription() {
+        String name = txtDescription.getText();
+        if (name.trim().isEmpty()) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Invalid Description");
+            alert.setHeaderText(null);
+            alert.setContentText("Please enter a Description");
+            alert.showAndWait();
+            return false;
         }
-
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Invalid Quantity On Hand");
-        alert.setHeaderText(null);
-        alert.setContentText("Please enter a valid number for quantity on hand");
-        alert.showAndWait();
-        return false;
+        return true;
     }
 
     private boolean validateUnitPrice() {
@@ -205,24 +254,36 @@ public class ItemsController implements Initializable {
         return true;
     }
 
-    private boolean validateCode() {
-        Pattern pattern = Pattern.compile("^P[0-9]{3}$");
-        Matcher matcher = pattern.matcher(txtCode.getText());
-
-        if (matcher.find() && matcher.group().equals(txtCode.getText())) {
-            return true;
+    public boolean isCategorySelected() {
+        if (cmbCategory.getValue() == null) {
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Category Not Selected");
+            alert.setHeaderText(null);
+            alert.setContentText("Please select a category.");
+            alert.showAndWait();
+            return false;
         }
-
-        Alert alert = new Alert(Alert.AlertType.WARNING);
-        alert.setTitle("Invalid Code");
-        alert.setHeaderText(null);
-        alert.setContentText("Please enter a valid code");
-        alert.showAndWait();
-        return false;
+        return true;
     }
 
+//    private boolean validateCode() {
+//        Pattern pattern = Pattern.compile("^P[0-9]{3}$");
+//        Matcher matcher = pattern.matcher(txtCode.getText());
+//
+//        if (matcher.find() && matcher.group().equals(txtCode.getText())) {
+//            return true;
+//        }
+//
+//        Alert alert = new Alert(Alert.AlertType.WARNING);
+//        alert.setTitle("Invalid Code");
+//        alert.setHeaderText(null);
+//        alert.setContentText("Please enter a valid code");
+//        alert.showAndWait();
+//        return false;
+//    }
+
     private boolean isAnyInputDataInvalid() {
-        return !validateCode() | !validateUnitPrice() | !validateQtyOnHand();
+        return !validateUnitPrice() | !validateDescription() | !isCategorySelected();
     }
 
     public void deleteItem(String id) {
@@ -247,7 +308,7 @@ public class ItemsController implements Initializable {
             boolean isSaved = itemBO.saveItem(new ItemDTO(txtCode.getText(),
                     txtDescription.getText(),
                     Double.parseDouble(txtUnitPrice.getText()),
-                    txtQty.getText()
+                    cmbCategory.getValue()
             ));
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Item Saved!").show();
@@ -266,7 +327,7 @@ public class ItemsController implements Initializable {
         txtCode.clear();
         txtDescription.clear();
         txtUnitPrice.clear();
-        txtQty.clear();
+        cmbCategory.setValue(null);
         txtCode.setEditable(true);
     }
 
@@ -282,7 +343,7 @@ public class ItemsController implements Initializable {
             boolean isUpdated = itemBO.updateItem(new ItemDTO(txtCode.getText(),
                     txtDescription.getText(),
                     Double.parseDouble(txtUnitPrice.getText()),
-                    txtQty.getText()
+                    cmbCategory.getValue()
             ));
             if (isUpdated) {
                 new Alert(Alert.AlertType.INFORMATION, "Item Updated!").show();
@@ -298,4 +359,6 @@ public class ItemsController implements Initializable {
         updateItem();
     }
 
+    public void cmbCategoryOnAction(ActionEvent actionEvent) {
+    }
 }

@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
 <?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXComboBox?>
 <?import com.jfoenix.controls.JFXTextField?>
 <?import java.lang.String?>
 <?import javafx.scene.control.Label?>
@@ -128,41 +129,41 @@
                 <Font size="10.0" />
             </font>
         </JFXButton>
-        <Label layoutX="233.0" layoutY="110.0" text="Code" textFill="#f7f9ff">
+        <Label layoutX="232.0" layoutY="110.0" text="Description" textFill="#f7f9ff">
             <font>
                 <Font size="18.0" />
             </font>
         </Label>
-        <JFXTextField fx:id="txtCode" focusColor="#405aa800" layoutX="233.0" layoutY="149.0" prefHeight="48.0" prefWidth="171.0" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
-        <Label layoutX="424.0" layoutY="110.0" text="Description" textFill="#f7f9ff">
-            <font>
-                <Font size="18.0" />
-            </font>
-        </Label>
-        <JFXTextField fx:id="txtDescription" focusColor="#405aa800" layoutX="424.0" layoutY="149.0" prefHeight="48.0" prefWidth="286.0" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
+        <JFXTextField fx:id="txtDescription" focusColor="#405aa800" layoutX="232.0" layoutY="149.0" prefHeight="40.0" prefWidth="286.0" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
         <Label layoutX="730.0" layoutY="110.0" text="Unit Price" textFill="#f7f9ff">
             <font>
                 <Font size="18.0" />
             </font>
         </Label>
-        <JFXTextField fx:id="txtUnitPrice" focusColor="#405aa800" layoutX="730.0" layoutY="149.0" prefHeight="48.0" prefWidth="171.0" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
-        <Label layoutX="921.0" layoutY="110.0" text="QTY" textFill="#f7f9ff">
+        <JFXTextField fx:id="txtUnitPrice" focusColor="#405aa800" layoutX="730.0" layoutY="149.0" prefHeight="40.0" prefWidth="171.0" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
+        <Label layoutX="921.0" layoutY="110.0" text="Category" textFill="#f7f9ff">
             <font>
                 <Font size="18.0" />
             </font>
         </Label>
-        <JFXTextField fx:id="txtQty" focusColor="#405aa800" layoutX="921.0" layoutY="149.0" prefHeight="48.0" prefWidth="171.0" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
         <JFXTextField fx:id="txtSearch" focusColor="#405aa800" layoutX="233.0" layoutY="237.0" prefHeight="48.0" prefWidth="286.0" promptText="Search..." styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
         <TableView fx:id="tblItems" layoutX="233.0" layoutY="315.0" prefHeight="340.0" prefWidth="859.0">
             <columns>
-                <TableColumn fx:id="colCode" prefWidth="153.0" text="Code" />
-                <TableColumn fx:id="colDescription" minWidth="0.0" prefWidth="209.0" text="Description" />
+                <TableColumn fx:id="colCode" prefWidth="114.0" text="Code" />
+                <TableColumn fx:id="colDescription" minWidth="0.0" prefWidth="248.0" text="Description" />
                 <TableColumn fx:id="colUnitPrice" prefWidth="195.0" text="Unit Price" />
-                <TableColumn fx:id="colQtyOnHand" prefWidth="142.0" text="QTY" />
+                <TableColumn fx:id="colCategory" prefWidth="142.0" text="Category" />
                 <TableColumn fx:id="colOption" prefWidth="159.0" text="Option" />
             </columns>
         </TableView>
         <JFXButton fx:id="btnSave" layoutX="990.0" layoutY="675.0" onAction="#saveButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Save" textFill="#242529" />
         <JFXButton fx:id="btnUpdate" layoutX="869.0" layoutY="675.0" onAction="#updateButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Update" textFill="#242529" />
+      <Label layoutX="539.0" layoutY="107.0" text="Code" textFill="#f7f9ff">
+         <font>
+            <Font size="18.0" />
+         </font>
+      </Label>
+      <JFXTextField fx:id="txtCode" focusColor="#405aa800" layoutX="539.0" layoutY="146.0" prefHeight="40.0" prefWidth="171.0" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
+      <JFXComboBox fx:id="cmbCategory" layoutX="917.0" layoutY="149.0" onAction="#cmbCategoryOnAction" prefHeight="39.0" prefWidth="171.0" styleClass="cmbx" stylesheets="@../css/place-orders.css" />
     </children>
 </AnchorPane>
