@@ -12,6 +12,9 @@ import dto.ItemDTO;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
 import dto.tm.OrderTM;
+import entity.Customer;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -25,6 +28,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.input.KeyCode;
 import javafx.stage.Stage;
 import dao.custom.OrderDAO;
 import dao.custom.impl.OrderDAOImpl;
@@ -39,6 +43,14 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class PlaceOrdersController implements Initializable {
+    public JFXButton btnNewCustomer;
+    public JFXTextField txtPhnNum;
+    public JFXTextField txtAddress;
+    public Label lblSubTotal;
+    public Label lblDiscount;
+    public JFXTextField txtDiscount;
+    public JFXComboBox cmbOrderType;
+    public JFXTextField txtTableNum;
     @FXML
     private JFXButton btnDashboard;
 
@@ -56,12 +68,6 @@ public class PlaceOrdersController implements Initializable {
 
     @FXML
     private JFXButton btnSettings;
-
-    @FXML
-    private JFXButton btnLogout;
-
-    @FXML
-    private JFXButton btnNotifications;
 
     @FXML
     private JFXButton btnEdit;
@@ -100,10 +106,7 @@ public class PlaceOrdersController implements Initializable {
     private JFXButton btnAddToCart;
 
     @FXML
-    private JFXComboBox cmbxCustomerId;
-
-    @FXML
-    private JFXComboBox cmbxItemCode;
+    private JFXComboBox cmbItemCode;
 
     @FXML
     private JFXTextField txtName;
@@ -185,15 +188,13 @@ public class PlaceOrdersController implements Initializable {
         loadItemCodes();
         loadCustomerIds();
 
-        cmbxCustomerId.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
-            for (CustomerDTO customerDTO : customers) {
-                if (customerDTO.getId().equals(newValue.toString())){
-                    txtName.setText(customerDTO.getName());
-                }
+        txtPhnNum.setOnKeyPressed(event -> {
+            if (event.getCode() == KeyCode.ENTER) {
+                searchPhoneNumber();
             }
         });
 
-        cmbxItemCode.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
+        cmbItemCode.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             for (ItemDTO itemDTO : items) {
                 if (itemDTO.getCode().equals(newValue.toString())){
                     txtDescription.setText(itemDTO.getDesc());
@@ -205,7 +206,22 @@ public class PlaceOrdersController implements Initializable {
         setOrderId();
     }
 
-
+    private void searchPhoneNumber() {
+        String phoneNumber = txtPhnNum.getText();
+        // Assuming you have a method to search for a customer by phone number
+        Customer customer = searchCustomerByPhoneNumber(phoneNumber);
+        if (customer != null) {
+            txtName.setText(customer.getName());
+            txtAddress.setText(customer.getAddress());
+        } else {
+            // No customer found, show alert
+            Alert alert = new Alert(Alert.AlertType.WARNING);
+            alert.setTitle("Customer Not Found");
+            alert.setHeaderText(null);
+            alert.setContentText("No customer found with the given phone number.");
+            alert.showAndWait();
+        }
+    }
 
     private void loadItemCodes() {
         ObservableList list = FXCollections.observableArrayList();
@@ -329,5 +345,8 @@ public class PlaceOrdersController implements Initializable {
         tblOrders.refresh();
         lblTotal.setText("0.00");
         setOrderId();
+    }
+
+    public void txtPhnNumOnAction(ActionEvent actionEvent) {
     }
 }
