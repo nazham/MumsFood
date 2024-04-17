@@ -67,7 +67,7 @@ public class OrderDAOImpl implements OrderDAO {
 
         for (OrderDetailDTO detailDto:list) {
             OrderDetail orderDetail = new OrderDetail(
-                    new OrderDetailKey(detailDto.getOrderId(), detailDto.getItemCode()),
+                    new OrderDetailKey(detailDto.getOrderId(), Integer.parseInt(detailDto.getItemCode())),
                     session.find(Item.class, detailDto.getItemCode()),
                     orders,
                     detailDto.getQty()
