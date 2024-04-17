@@ -35,4 +35,11 @@ public class Item {
         this.description = description;
         this.price = price;
     }
+
+    public Item(int itemId, String code, String description, double price) {
+        this.itemId = itemId;
+        this.code = code;
+        this.description = description;
+        this.price = price;
+    }
 }

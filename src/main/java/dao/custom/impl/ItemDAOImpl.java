@@ -6,6 +6,7 @@ import dao.util.HibernateUtil;
 import db.DBConnection;
 import dto.ItemDTO;
 import entity.Category;
+import entity.Customer;
 import entity.Item;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
@@ -39,16 +40,12 @@ public class ItemDAOImpl implements ItemDAO {
     public boolean save(Item entity) throws SQLException, ClassNotFoundException {
         try (Session session = HibernateUtil.getSession()) {
             Transaction transaction = session.beginTransaction();
-
-            // Retrieve the associated Category entity using its ID
-            Category category = session.find(Category.class, entity.getCategory().getCategoryId());
-
             // Create a new Item entity instance
             Item item = new Item();
             item.setCode(entity.getCode());
             item.setDescription(entity.getDescription());
             item.setPrice(entity.getPrice());
-            item.setCategory(category);
+            item.setCategory(session.find(Category.class, entity.getCategory().getCategoryId()));
 
             // Save the Item entity
             session.save(item);
@@ -63,9 +60,26 @@ public class ItemDAOImpl implements ItemDAO {
 
     @Override
     public boolean update(Item entity) throws SQLException, ClassNotFoundException {
-//        String sql = "UPDATE Item SET Description=?, Price=?, qtyOnHand=? WHERE code=?";
-//        return CrudUtil.execute(sql, entity.getDescription(),entity.getPrice(),entity.getQtyOnHand(),entity.getCode());
-        return false;
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = session.beginTransaction();
+        try {
+            Item item = session.find(Item.class, entity.getItemId());
+            item.setCode(entity.getCode());
+            item.setDescription(entity.getDescription());
+            item.setPrice(entity.getPrice());
+            item.setCategory(session.find(Category.class, entity.getCategory().getCategoryId()));
+            session.update(item);
+            transaction.commit(); // Commit the transaction
+            return true;
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback(); // Rollback the transaction if an exception occurs
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            session.close();
+        }
     }
 
     @Override

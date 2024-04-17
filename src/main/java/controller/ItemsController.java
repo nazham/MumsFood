@@ -10,6 +10,7 @@ import dao.util.BOType;
 import dto.CategoryDTO;
 import dto.CustomerDTO;
 import dto.ItemDTO;
+import dto.tm.CustomerTM;
 import dto.tm.ItemTM;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
@@ -35,6 +36,7 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class ItemsController implements Initializable {
+    public TableColumn<?, ?> colId;
     @FXML
     private JFXButton btnDashboard;
 
@@ -156,6 +158,7 @@ public class ItemsController implements Initializable {
             for (ItemDTO itemDTO : dtoList) {
                 JFXButton btn = new JFXButton("Delete");
                 ItemTM itemTm = new ItemTM(
+                        itemDTO.getId(),
                         itemDTO.getCode(),
                         itemDTO.getDesc(),
                         itemDTO.getUnitPrice(),
@@ -178,12 +181,14 @@ public class ItemsController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        colId.setCellValueFactory(new PropertyValueFactory<>("id"));
         colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("desc"));
         colUnitPrice.setCellValueFactory(new PropertyValueFactory<>("unitPrice"));
         colCategory.setCellValueFactory(new PropertyValueFactory<>("categoryId"));
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
         loadItems();
+        btnUpdate.setDisable(true);
 
         try {
             categories = categoryBO.allCategory();
@@ -202,8 +207,6 @@ public class ItemsController implements Initializable {
         cmbCategory.setItems(list);
 
         cmbCategory.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
-            // No need to iterate over categories here, since the ComboBox is already populated with category names
-            // You can directly set the value to the ComboBox
             if (newValue != null) {
                 cmbCategory.setValue(newValue.toString());
             }
@@ -212,13 +215,20 @@ public class ItemsController implements Initializable {
 
 
         tblItems.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
-            setData(newValue);
+            if (newValue != null) {
+                setData(newValue);
+                btnUpdate.setDisable(false);
+                btnSave.setDisable(true); // Disable save button when a record is selected
+            } else {
+                btnSave.setDisable(false); // Enable save button when no record is selected
+            }
+
+
         });
     }
 
     private void setData(ItemTM newValue) {
         if (newValue != null) {
-            txtCode.setEditable(false);
             txtCode.setText(newValue.getCode());
             txtDescription.setText(newValue.getDesc());
             txtUnitPrice.setText(String.valueOf(newValue.getUnitPrice()));
@@ -305,10 +315,23 @@ public class ItemsController implements Initializable {
             return;
         }
         try {
+            CategoryDTO selectedCategory = null;
+            for (CategoryDTO categoryDTO : categories) {
+                if (categoryDTO.getCategoryName().equals(cmbCategory.getValue())) {
+                    selectedCategory = categoryDTO;
+                    break;
+                }
+            }
+            if (selectedCategory == null) {
+                    isCategorySelected();
+                    return;
+            }
+
+
             boolean isSaved = itemBO.saveItem(new ItemDTO(txtCode.getText(),
                     txtDescription.getText(),
                     Double.parseDouble(txtUnitPrice.getText()),
-                    cmbCategory.getValue()
+                    selectedCategory.getId()
             ));
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Item Saved!").show();
@@ -328,7 +351,6 @@ public class ItemsController implements Initializable {
         txtDescription.clear();
         txtUnitPrice.clear();
         cmbCategory.setValue(null);
-        txtCode.setEditable(true);
     }
 
     public void saveButtonOnAction() {
@@ -340,15 +362,32 @@ public class ItemsController implements Initializable {
             return;
         }
         try {
-            boolean isUpdated = itemBO.updateItem(new ItemDTO(txtCode.getText(),
+            CategoryDTO selectedCategory = null;
+            for (CategoryDTO categoryDTO : categories) {
+                if (categoryDTO.getCategoryName().equals(cmbCategory.getValue())) {
+                    selectedCategory = categoryDTO;
+                    break;
+                }
+            }
+            if (selectedCategory == null) {
+                isCategorySelected();
+                return;
+            }
+
+            ItemTM selectedItem = tblItems.getSelectionModel().getSelectedItem();
+
+            boolean isUpdated = itemBO.updateItem(new ItemDTO(
+                    selectedItem.getId(),
+                    txtCode.getText(),
                     txtDescription.getText(),
                     Double.parseDouble(txtUnitPrice.getText()),
-                    cmbCategory.getValue()
+                    selectedCategory.getId()
             ));
             if (isUpdated) {
                 new Alert(Alert.AlertType.INFORMATION, "Item Updated!").show();
                 loadItems();
                 clearFields();
+                btnUpdate.setDisable(true);
             }
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
@@ -360,5 +399,6 @@ public class ItemsController implements Initializable {
     }
 
     public void cmbCategoryOnAction(ActionEvent actionEvent) {
+
     }
 }

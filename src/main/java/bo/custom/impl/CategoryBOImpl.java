@@ -21,7 +21,7 @@ public class CategoryBOImpl implements CategoryBO {
     @Override
     public boolean saveCategory(CategoryDTO dto) throws SQLException, ClassNotFoundException {
         return customerDao.save(new Category(
-                Integer.parseInt(dto.getId()),
+                dto.getId(),
                 dto.getCategoryName()
         ));
     }
@@ -29,7 +29,7 @@ public class CategoryBOImpl implements CategoryBO {
     @Override
     public boolean updateCategory(CategoryDTO dto) throws SQLException, ClassNotFoundException {
         return customerDao.update(new Category(
-                Integer.parseInt(dto.getId()),
+                dto.getId(),
                 dto.getCategoryName()
         ));
     }
@@ -45,7 +45,7 @@ public class CategoryBOImpl implements CategoryBO {
         List<CategoryDTO> list = new ArrayList<>();
         for (Category category:entityList) {
             list.add(new CategoryDTO(
-                    Integer.toString(category.getCategoryId()),
+                    category.getCategoryId(),
                     category.getName()
             ));
         }

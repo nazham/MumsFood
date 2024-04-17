@@ -11,13 +11,15 @@ import lombok.*;
 @Setter
 
 public class ItemTM extends RecursiveTreeObject<ItemTM> {
+    private int id;
     private String code;
     private String desc;
     private Double unitPrice;
     private String categoryId;
     private JFXButton btn;
 
-    public ItemTM(String code, String desc, Double unitPrice, String categoryId) {
+    public ItemTM(int id, String code, String desc, Double unitPrice, String categoryId) {
+        this.id = id;
         this.code = code;
         this.desc = desc;
         this.unitPrice = unitPrice;
