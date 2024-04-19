@@ -42,33 +42,50 @@ public class HomeController {
     public void settingsButtonOnAction() {
     }
 
-    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
+    public void viewPlaceOrder(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/PlaceOrders.fxml"))));
         stage.show();
     }
-
-    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
+    public void viewOrders(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Orders.fxml"))));
         stage.show();
     }
-
-    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
+    public void viewCustomers(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Customers.fxml"))));
         stage.show();
     }
-
-    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
+    public void viewItems(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Items.fxml"))));
         stage.show();
     }
 
-    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
+    public void viewHome(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
         stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Home.fxml"))));
         stage.show();
+    }
+
+    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        viewPlaceOrder(actionEvent);
+    }
+
+    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        viewOrders(actionEvent);
+    }
+
+    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        viewCustomers(actionEvent);
+    }
+
+    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
+        viewItems(actionEvent);
+    }
+
+    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
+        viewHome(actionEvent);
     }
 }

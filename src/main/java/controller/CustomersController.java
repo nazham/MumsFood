@@ -8,20 +8,15 @@ import dao.util.BOType;
 import db.DBConnection;
 import dto.CustomerDTO;
 import dto.tm.CustomerTM;
-import entity.Customer;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
@@ -101,6 +96,7 @@ public class CustomersController implements Initializable {
     private JFXButton btnUpdate;
 
     private final CustomerBO customerBO = BOFactory.getInstance().getBo(BOType.CUSTOMER);
+    private final HomeController home = new HomeController();
 
     public void notificationsButtonOnAction() {
     }
@@ -115,33 +111,23 @@ public class CustomersController implements Initializable {
     }
 
     public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/PlaceOrders.fxml"))));
-        stage.show();
+        home.viewPlaceOrder(actionEvent);
     }
 
     public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Orders.fxml"))));
-        stage.show();
+        home.viewOrders(actionEvent);
     }
 
     public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Customers.fxml"))));
-        stage.show();
+        home.viewCustomers(actionEvent);
     }
 
     public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Items.fxml"))));
-        stage.show();
+        home.viewItems(actionEvent);
     }
 
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Home.fxml"))));
-        stage.show();
+        home.viewHome(actionEvent);
     }
 
     @Override
