@@ -7,7 +7,6 @@ import java.io.IOException;
 import java.util.Objects;
 
 public class AppInitializer extends Application {
-
     public static void main(String[] args) {
         launch(args);
     }
@@ -15,6 +14,8 @@ public class AppInitializer extends Application {
     @Override
     public void start(Stage primaryStage) throws IOException {
         primaryStage.setScene(new Scene(FXMLLoader.load(Objects.requireNonNull(getClass().getResource("/view/Home.fxml")))));
+        primaryStage.setTitle("Mum's Food");
+
         primaryStage.show();
         primaryStage.centerOnScreen();
     }

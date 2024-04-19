@@ -2,18 +2,35 @@ package dao.custom.impl;
 
 import dao.custom.CustomerDAO;
 import dao.util.HibernateUtil;
+import db.DBConnection;
 import dto.CustomerDTO;
+import dto.ItemDTO;
 import entity.Customer;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
 
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.util.List;
 
 public class CustomerDAOImpl implements CustomerDAO {
     @Override
-    public CustomerDTO searchCustomer() {
+    public CustomerDTO searchCustomer(String phnNum) throws SQLException, ClassNotFoundException {
+        String sql = "SELECT * FROM customer WHERE phone_number=?";
+        PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
+        pstm.setString(1, phnNum);
+        ResultSet resultSet=pstm.executeQuery();
+        if(resultSet.next()){
+            return  new CustomerDTO(
+                    resultSet.getInt(1),
+                    resultSet.getString(3),
+                    resultSet.getString(4),
+                    resultSet.getString(2)
+
+            );
+        }
         return null;
     }
 

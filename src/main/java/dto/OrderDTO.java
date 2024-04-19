@@ -13,7 +13,7 @@ import java.util.List;
 public class OrderDTO {
     private String orderId;
     private LocalDateTime dateTime;
-    private String cusId;
+    private int cusId;
     private Double totalAmount;
     private String orderType;
     private String userId;

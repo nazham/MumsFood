@@ -25,7 +25,7 @@ public class OrderDetailDAOImpl implements OrderDetailDAO {
             String sql = "INSERT INTO order_detail VALUES(?,?,?,?)";
             PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
             pstm.setString(2, dto.getOrderId());
-            pstm.setString(1, dto.getItemCode());
+            pstm.setInt(1, dto.getItemId());
             pstm.setInt(3, dto.getQty());
             pstm.setDouble(4, dto.getUnitPrice());
 
@@ -44,7 +44,7 @@ public class OrderDetailDAOImpl implements OrderDetailDAO {
         while(resultSet.next()) {
             orderDetailDTOList.add(new OrderDetailDTO(
                     resultSet.getString(1),
-                    resultSet.getString(2),
+                    resultSet.getInt(2),
                     resultSet.getInt(3),
                     resultSet.getDouble(4)
             ));

@@ -25,7 +25,7 @@ public class CustomerBOImpl implements CustomerBO {
     @Override
     public boolean updateCustomer(CustomerDTO dto) throws SQLException, ClassNotFoundException {
         return customerDao.update(new Customer(
-                Integer.parseInt(dto.getId()),
+                dto.getId(),
                 dto.getPhoneNumber(),
                 dto.getName(),
                 dto.getAddress()
@@ -43,7 +43,7 @@ public class CustomerBOImpl implements CustomerBO {
         List<CustomerDTO> list = new ArrayList<>();
         for (Customer customer:entityList) {
             list.add(new CustomerDTO(
-                    Integer.toString(customer.getCustomerId()),
+                    customer.getCustomerId(),
                     customer.getName(),
                     customer.getPhoneNumber(),
                     customer.getAddress()

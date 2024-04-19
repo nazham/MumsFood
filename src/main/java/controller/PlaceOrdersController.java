@@ -6,15 +6,15 @@ import bo.custom.ItemBO;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
+import dao.custom.CustomerDAO;
 import dao.util.BOType;
+import dao.util.DAOFactory;
+import dao.util.DAOType;
 import dto.CustomerDTO;
 import dto.ItemDTO;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
 import dto.tm.OrderTM;
-import entity.Customer;
-import javafx.beans.value.ChangeListener;
-import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
@@ -37,7 +37,6 @@ import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.ResourceBundle;
@@ -82,7 +81,7 @@ public class PlaceOrdersController implements Initializable {
     private JFXTextField txtQty;
 
     @FXML
-    private TableView tblOrders;
+    private TableView<OrderTM> tblOrders;
 
     @FXML
     private TableColumn colCode;
@@ -117,13 +116,19 @@ public class PlaceOrdersController implements Initializable {
 
     private CustomerBO customerBO = BOFactory.getInstance().getBo(BOType.CUSTOMER);
     private ItemBO itemBO = BOFactory.getInstance().getBo(BOType.ITEM);
+
+    private CustomerDAO customerDAO = DAOFactory.getInstance().getDao(DAOType.CUSTOMER);
     private List<ItemDTO> items;
     private List<CustomerDTO> customers;
 
     private ObservableList<OrderTM> tmList = FXCollections.observableArrayList();
     private OrderDAO orderDAO = new OrderDAOImpl();
 
+    private CustomerDTO customer;
+
+    private double subTotal = 0.0;
     private double total = 0.0;
+    private double discount = 0.0;
 
 
     public void notificationsButtonOnAction() {
@@ -140,31 +145,31 @@ public class PlaceOrdersController implements Initializable {
 
     public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("../view/PlaceOrders.fxml"))));
+        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/PlaceOrders.fxml"))));
         stage.show();
     }
 
     public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("../view/Orders.fxml"))));
+        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Orders.fxml"))));
         stage.show();
     }
 
     public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("../view/Customers.fxml"))));
+        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Customers.fxml"))));
         stage.show();
     }
 
     public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("../view/Items.fxml"))));
+        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Items.fxml"))));
         stage.show();
     }
 
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
         Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("../view/Home.fxml"))));
+        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Home.fxml"))));
         stage.show();
     }
 
@@ -186,40 +191,57 @@ public class PlaceOrdersController implements Initializable {
         }
 
         loadItemCodes();
-        loadCustomerIds();
+
 
         txtPhnNum.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
-                searchPhoneNumber();
+                try {
+                    searchPhoneNumber();
+                } catch (SQLException e) {
+                    throw new RuntimeException(e);
+                } catch (ClassNotFoundException e) {
+                    throw new RuntimeException(e);
+                }
             }
         });
 
         cmbItemCode.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
-            for (ItemDTO itemDTO : items) {
-                if (itemDTO.getCode().equals(newValue.toString())){
-                    txtDescription.setText(itemDTO.getDesc());
-                    txtUnitPrice.setText(String.format("%.2f",itemDTO.getUnitPrice()));
-                }
+            ItemDTO matchedItem = null;
+            if (newValue != null) {matchedItem = findItemByCode(newValue.toString());}
+            if (matchedItem != null) {
+                txtDescription.setText(matchedItem.getDesc());
+                txtUnitPrice.setText(String.format("%.2f", matchedItem.getUnitPrice()));
             }
         });
 
         setOrderId();
     }
 
-    private void searchPhoneNumber() {
+    private ItemDTO findItemByCode(String code) {
+        for (ItemDTO itemDTO : items) {
+            if (itemDTO.getCode().equals(code)) {
+                return itemDTO;
+            }
+        }
+        return null;
+    }
+
+    private void searchPhoneNumber() throws SQLException, ClassNotFoundException {
         String phoneNumber = txtPhnNum.getText();
-        // Assuming you have a method to search for a customer by phone number
-        Customer customer = searchCustomerByPhoneNumber(phoneNumber);
+
+        customer = customerDAO.searchCustomer(phoneNumber);
+
         if (customer != null) {
             txtName.setText(customer.getName());
             txtAddress.setText(customer.getAddress());
         } else {
-            // No customer found, show alert
+
             Alert alert = new Alert(Alert.AlertType.WARNING);
             alert.setTitle("Customer Not Found");
             alert.setHeaderText(null);
             alert.setContentText("No customer found with the given phone number.");
             alert.showAndWait();
+            clearFields();
         }
     }
 
@@ -230,32 +252,19 @@ public class PlaceOrdersController implements Initializable {
             list.add(itemDTO.getCode());
         }
 
-        cmbxItemCode.setItems(list);
-    }
-
-    private void loadCustomerIds() {
-        ObservableList list = FXCollections.observableArrayList();
-
-        for (CustomerDTO customerDTO : customers) {
-            list.add(customerDTO.getId());
-        }
-
-        cmbxCustomerId.setItems(list);
+        cmbItemCode.setItems(list);
     }
 
     private void setOrderId() {
         try {
-            String id = orderDAO.getLastOrderId();
-            if (id.equals("D001")){
-                lblOrderId.setText("D001");
-                return;
+            String lastOrderId = orderDAO.getLastOrderId();
+            if (lastOrderId == null || lastOrderId.isEmpty()) {
+                lblOrderId.setText("ODR#00001");
+            } else {
+                int num = Integer.parseInt(lastOrderId.substring(4)) + 1; // Extract the number part and increment
+                lblOrderId.setText("ODR#" + String.format("%05d", num));
             }
-            int num = Integer.parseInt(id.split("[D]")[1]);
-            num++;
-            lblOrderId.setText(String.format("D%03d",num));
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
     }
@@ -266,7 +275,7 @@ public class PlaceOrdersController implements Initializable {
         for (OrderTM orderTM : tmList) {
             list.add(new OrderDetailDTO(
                     lblOrderId.getText(),
-                    orderTM.getCode(),
+                    findItemByCode(orderTM.getCode()).getId(),
                     orderTM.getQty(),
                     orderTM.getAmount()/orderTM.getQty()
             ));
@@ -275,7 +284,7 @@ public class PlaceOrdersController implements Initializable {
         OrderDTO dto = new OrderDTO(
                 lblOrderId.getText(),
                 LocalDateTime.now(),
-                cmbxCustomerId.getValue().toString(),
+                customer.getId(),
                 Double.parseDouble(lblTotal.getText()),
                 "Dine-In",
                 "U001",
@@ -300,10 +309,10 @@ public class PlaceOrdersController implements Initializable {
     }
 
     public void addToCartButtonOnAction() {
-        JFXButton btn = new JFXButton("Delete");
 
+        JFXButton btn = new JFXButton("Delete");
         OrderTM orderTM = new OrderTM(
-                cmbxItemCode.getValue().toString(),
+                cmbItemCode.getValue().toString(),
                 txtDescription.getText(),
                 Integer.parseInt(txtQty.getText()),
                 Double.parseDouble(txtUnitPrice.getText())*Integer.parseInt(txtQty.getText()),
@@ -311,9 +320,11 @@ public class PlaceOrdersController implements Initializable {
         );
         btn.setOnAction(actionEvent -> {
             tmList.remove(orderTM);
-            total-=orderTM.getAmount();
-            lblTotal.setText(String.format("%.2f",total));
+            subTotal -=orderTM.getAmount();
+            lblSubTotal.setText(String.format("%.2f", subTotal));
             tblOrders.refresh();
+            setDiscount();
+
         });
         boolean isExist = false;
         for (OrderTM order : tmList) {
@@ -321,15 +332,15 @@ public class PlaceOrdersController implements Initializable {
                 order.setQty(order.getQty()+orderTM.getQty());
                 order.setAmount(order.getAmount()+orderTM.getAmount());
                 isExist = true;
-                total+= orderTM.getAmount();
+                subTotal += orderTM.getAmount();
             }
         }
         if (!isExist){
             tmList.add(orderTM);
-            total+=orderTM.getAmount();
+            subTotal +=orderTM.getAmount();
         }
 
-        lblTotal.setText(String.format("%.2f",total));
+        lblSubTotal.setText(String.format("%.2f", subTotal));
 
         tblOrders.setItems(tmList);
     }
@@ -339,14 +350,35 @@ public class PlaceOrdersController implements Initializable {
         txtDescription.clear();
         txtUnitPrice.clear();
         txtQty.clear();
-        cmbxItemCode.getSelectionModel().clearSelection();
-        cmbxCustomerId.getSelectionModel().clearSelection();
+        cmbItemCode.getSelectionModel().clearSelection();
+        txtPhnNum.clear();
+        cmbOrderType.getSelectionModel().clearSelection();
+        txtDiscount.clear();
         tmList.clear();
         tblOrders.refresh();
         lblTotal.setText("0.00");
+        lblSubTotal.setText("0.00");
+        lblDiscount.setText("0.00");
         setOrderId();
     }
 
     public void txtPhnNumOnAction(ActionEvent actionEvent) {
+    }
+
+    public void newCustomerOnAction(ActionEvent actionEvent) {
+    }
+
+    private void setDiscount(){
+        total=subTotal;
+        discount = Double.parseDouble(txtDiscount.getText());
+        discount /=100.00;
+        discount *= subTotal;
+        lblDiscount.setText(String.format("%.2f", discount));
+        total -= discount;
+        lblTotal.setText(String.format("%.2f", total));
+    }
+
+    public void txtDiscountOnAction(ActionEvent actionEvent) {
+        setDiscount();
     }
 }

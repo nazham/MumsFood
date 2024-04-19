@@ -17,7 +17,7 @@
 <AnchorPane maxHeight="744.0" maxWidth="1133.0" minHeight="744.0" minWidth="1133.0" prefHeight="744.0" prefWidth="1133.0" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.PlaceOrdersController">
     <children>
         <Line endX="187.0" startX="187.0" startY="744.0" stroke="#dbdbdb33" />
-        <ImageView fitHeight="25.0" fitWidth="117.0" layoutX="25.0" layoutY="33.0" pickOnBounds="true" preserveRatio="true">
+        <ImageView fitHeight="70.0" fitWidth="162.0" layoutX="23.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true">
             <image>
                 <Image url="@../img/logo.png" />
             </image>
@@ -103,9 +103,9 @@
                 <Font size="24.0" />
             </font>
         </Label>
-        <JFXButton fx:id="btnNewCustomer" layoutX="1056.0" layoutY="62.0" onAction="#notificationsButtonOnAction" prefHeight="44.0" prefWidth="54.0" text="New" textFill="WHITE">
+        <JFXButton fx:id="btnNewCustomer" alignment="CENTER" contentDisplay="CENTER" layoutX="1029.0" layoutY="92.0" onAction="#newCustomerOnAction" prefHeight="44.0" prefWidth="62.0" stylesheets="@../css/place-orders.css" text="New" textAlignment="CENTER" textFill="#242529">
          <font>
-            <Font size="14.0" />
+            <Font size="18.0" />
          </font>
         </JFXButton>
         <Circle centerX="92.0" centerY="142.0" fill="#fff27a" radius="32.0" stroke="TRANSPARENT" strokeType="INSIDE" />
@@ -124,109 +124,114 @@
                 <Font size="10.0" />
             </font>
         </JFXButton>
-        <Label layoutX="232.0" layoutY="113.0" text="Item Code" textFill="#f7f9ff">
+        <Label layoutX="240.0" layoutY="152.0" text="Item Code" textFill="#f7f9ff">
             <font>
-                <Font size="18.0" />
+                <Font size="16.0" />
             </font>
         </Label>
-        <Label layoutX="423.0" layoutY="113.0" text="Description" textFill="#f7f9ff">
+        <Label layoutX="419.0" layoutY="152.0" text="Description" textFill="#f7f9ff">
             <font>
-                <Font size="18.0" />
+                <Font size="16.0" />
             </font>
         </Label>
-        <JFXTextField fx:id="txtDescription" focusColor="#405aa800" layoutX="423.0" layoutY="152.0" prefHeight="48.0" prefWidth="286.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
-        <Label layoutX="729.0" layoutY="113.0" text="Unit Price" textFill="#f7f9ff">
+        <JFXTextField fx:id="txtDescription" focusColor="#405aa800" layoutX="412.0" layoutY="182.0" prefHeight="48.0" prefWidth="326.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
+        <Label layoutX="767.0" layoutY="152.0" text="Unit Price" textFill="#f7f9ff">
             <font>
-                <Font size="18.0" />
+                <Font size="16.0" />
             </font>
         </Label>
-        <JFXTextField fx:id="txtUnitPrice" focusColor="#405aa800" layoutX="729.0" layoutY="152.0" prefHeight="48.0" prefWidth="171.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
-        <Label layoutX="920.0" layoutY="111.0" text="QTY" textFill="#f7f9ff">
+        <JFXTextField fx:id="txtUnitPrice" focusColor="#405aa800" layoutX="758.0" layoutY="182.0" prefHeight="48.0" prefWidth="162.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
+        <Label layoutX="948.0" layoutY="154.0" text="QTY" textFill="#f7f9ff">
             <font>
-                <Font size="18.0" />
+                <Font size="16.0" />
             </font>
         </Label>
-        <JFXTextField fx:id="txtQty" focusColor="#405aa800" layoutX="920.0" layoutY="152.0" prefHeight="48.0" prefWidth="171.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
-        <TableView fx:id="tblOrders" layoutX="233.0" layoutY="281.0" prefHeight="303.0" prefWidth="859.0">
+        <JFXTextField fx:id="txtQty" focusColor="#405aa800" layoutX="941.0" layoutY="182.0" prefHeight="48.0" prefWidth="150.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
+        <TableView fx:id="tblOrders" layoutX="233.0" layoutY="302.0" prefHeight="303.0" prefWidth="859.0">
             <columns>
                 <TableColumn fx:id="colCode" prefWidth="88.0" text="Code" />
-                <TableColumn fx:id="colDescription" minWidth="0.0" prefWidth="320.0" text="Description" />
-                <TableColumn fx:id="colQty" prefWidth="139.0" text="QTY" />
-                <TableColumn fx:id="colAmount" prefWidth="202.0" text="Amount" />
+                <TableColumn fx:id="colDescription" minWidth="0.0" prefWidth="339.0" text="Description" />
+                <TableColumn fx:id="colQty" prefWidth="100.0" text="QTY" />
+                <TableColumn fx:id="colAmount" prefWidth="222.0" text="Amount" />
                 <TableColumn fx:id="colOption" prefWidth="109.0" text="Option" />
             </columns>
         </TableView>
-        <JFXButton fx:id="btnPlaceOrder" layoutX="964.0" layoutY="675.0" onAction="#placeOrderButtonOnAction" prefHeight="45.0" prefWidth="127.0" stylesheets="@../css/place-orders.css" text="Place Order" textFill="#242529" />
-        <JFXButton fx:id="btnAddToCart" layoutX="963.0" layoutY="216.0" onAction="#addToCartButtonOnAction" prefHeight="45.0" prefWidth="127.0" stylesheets="@../css/place-orders.css" text="Add To Cart" textFill="#242529" />
-        <JFXComboBox fx:id="cmbItemCode" layoutX="230.0" layoutY="154.0" prefHeight="44.0" prefWidth="171.0" styleClass="cmbx" stylesheets="@../css/place-orders.css" />
-        <JFXTextField fx:id="txtName" focusColor="#405aa800" layoutX="452.0" layoutY="60.0" prefHeight="48.0" prefWidth="217.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
-        <Label layoutX="792.0" layoutY="684.0" prefWidth="89.0" text="Total : " textFill="#f7f9ff">
+        <JFXButton fx:id="btnPlaceOrder" layoutX="976.0" layoutY="675.0" onAction="#placeOrderButtonOnAction" prefHeight="45.0" prefWidth="115.0" stylesheets="@../css/place-orders.css" text="Place Order" textFill="#242529" />
+        <JFXButton fx:id="btnAddToCart" layoutX="963.0" layoutY="246.0" onAction="#addToCartButtonOnAction" prefHeight="45.0" prefWidth="127.0" stylesheets="@../css/place-orders.css" text="Add To Cart" textFill="#242529" />
+        <JFXComboBox fx:id="cmbItemCode" layoutX="236.0" layoutY="184.0" prefHeight="44.0" prefWidth="150.0" styleClass="cmbx" stylesheets="@../css/place-orders.css" />
+        <JFXTextField fx:id="txtName" focusColor="#405aa800" layoutX="452.0" layoutY="90.0" prefHeight="48.0" prefWidth="217.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
+        <Label layoutX="758.0" layoutY="690.0" prefHeight="27.0" prefWidth="115.0" text="Total : " textFill="#f7f9ff">
             <font>
                 <Font size="18.0" />
             </font>
         </Label>
-        <Label fx:id="lblTotal" layoutX="882.0" layoutY="684.0" text="0.00" textFill="#f7f9ff">
+        <Label fx:id="lblTotal" layoutX="895.0" layoutY="690.0" text="0.000" textFill="#f7f9ff">
             <font>
-                <Font size="18.0" />
+                <Font name="System Bold" size="18.0" />
             </font>
         </Label>
-        <Label fx:id="lblOrderId" alignment="CENTER_RIGHT" layoutX="910.0" layoutY="107.0" prefHeight="30.0" prefWidth="162.0" textFill="#f7f9ff">
+        <Label fx:id="lblOrderId" alignment="CENTER_RIGHT" layoutX="758.0" layoutY="251.0" prefHeight="35.0" prefWidth="115.0" textFill="#f7f9ff">
             <font>
-                <Font size="24.0" />
+                <Font size="20.0" />
             </font>
         </Label>
-      <JFXTextField fx:id="txtPhnNum" layoutX="233.0" layoutY="56.0" onAction="#txtPhnNumOnAction" prefHeight="48.0" prefWidth="203.0" promptText="Enter Customer Phone number" unFocusColor="#e8dcdc">
+      <JFXTextField fx:id="txtPhnNum" layoutX="233.0" layoutY="86.0" onAction="#txtPhnNumOnAction" prefHeight="48.0" prefWidth="203.0" promptText="Enter Customer Phone number" styleClass="txt-search" stylesheets="@../css/place-orders.css" unFocusColor="WHITE">
          <font>
-            <Font name="System Bold" size="14.0" />
+            <Font size="14.0" />
          </font></JFXTextField>
-      <JFXTextField fx:id="txtAddress" focusColor="#405aa800" layoutX="683.0" layoutY="60.0" prefHeight="48.0" prefWidth="363.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
-      <Label layoutX="460.0" layoutY="25.0" text="Customer Name" textFill="#f7f9ff">
+      <JFXTextField fx:id="txtAddress" focusColor="#405aa800" layoutX="683.0" layoutY="90.0" prefHeight="48.0" prefWidth="332.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
+      <Label layoutX="460.0" layoutY="59.0" text="Customer Name" textFill="#f7f9ff">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <Label layoutX="689.0" layoutY="59.0" prefHeight="27.0" prefWidth="162.0" text="Customer Address" textFill="#f7f9ff">
+         <font>
+            <Font size="16.0" />
+         </font>
+      </Label>
+      <Label layoutX="758.0" layoutY="615.0" prefHeight="27.0" prefWidth="101.0" text="Sub Total : " textFill="#f7f9ff">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
-      <Label layoutX="689.0" layoutY="25.0" prefHeight="27.0" prefWidth="162.0" text="Customer Address" textFill="#f7f9ff">
+      <Label fx:id="lblSubTotal" layoutX="895.0" layoutY="615.0" text="0.000" textFill="#f7f9ff">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
-      <Label layoutX="792.0" layoutY="617.0" text="Sub Total : " textFill="#f7f9ff">
+      <Label layoutX="758.0" layoutY="653.0" prefHeight="27.0" prefWidth="115.0" text="Discount : " textFill="#f7f9ff">
          <font>
             <Font size="18.0" />
          </font>
       </Label>
-      <Label fx:id="lblSubTotal" layoutX="882.0" layoutY="617.0" text="0.00" textFill="#f7f9ff">
+      <Label fx:id="lblDiscount" layoutX="895.0" layoutY="652.0" text="0.000" textFill="#f7f9ff">
          <font>
-            <Font size="18.0" />
+            <Font name="System Italic" size="18.0" />
          </font>
       </Label>
-      <Label layoutX="792.0" layoutY="649.0" text="Discount : " textFill="#f7f9ff">
+      <Label layoutX="233.0" layoutY="636.0" prefHeight="27.0" prefWidth="101.0" text="Discount % :" textFill="#f7f9ff">
          <font>
-            <Font size="18.0" />
+            <Font size="16.0" />
          </font>
       </Label>
-      <Label fx:id="lblDiscount" layoutX="883.0" layoutY="649.0" text="0.00" textFill="#f7f9ff">
-         <font>
-            <Font size="18.0" />
-         </font>
-      </Label>
-      <Label layoutX="233.0" layoutY="613.0" prefHeight="27.0" prefWidth="101.0" text="Discount %" textFill="#f7f9ff">
+      <JFXTextField fx:id="txtDiscount" focusColor="#405aa800" layoutX="336.0" layoutY="632.0" onAction="#txtDiscountOnAction" prefHeight="35.0" prefWidth="84.0" promptText="0.00%" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
+      <Label layoutX="233.0" layoutY="255.0" prefHeight="27.0" prefWidth="84.0" text="Order Type :" textFill="#f7f9ff">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
-      <JFXTextField fx:id="txtDiscount" focusColor="#405aa800" layoutX="231.0" layoutY="640.0" prefHeight="35.0" prefWidth="101.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
-      <Label layoutX="233.0" layoutY="225.0" prefHeight="27.0" prefWidth="84.0" text="Order Type :" textFill="#f7f9ff">
+      <JFXComboBox fx:id="cmbOrderType" layoutX="317.0" layoutY="251.0" prefHeight="35.0" prefWidth="130.0" styleClass="cmbx" stylesheets="@../css/place-orders.css" />
+      <Label layoutX="483.0" layoutY="255.0" prefHeight="27.0" prefWidth="77.0" text="Table No:" textFill="#f7f9ff">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
-      <JFXComboBox fx:id="cmbOrderType" layoutX="317.0" layoutY="221.0" prefHeight="35.0" prefWidth="140.0" styleClass="cmbx" stylesheets="@../css/place-orders.css" />
-      <Label layoutX="483.0" layoutY="225.0" prefHeight="27.0" prefWidth="77.0" text="Table No:" textFill="#f7f9ff">
+      <JFXTextField fx:id="txtTableNum" focusColor="#405aa800" layoutX="552.0" layoutY="251.0" prefHeight="35.0" prefWidth="55.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
+      <Label layoutX="690.0" layoutY="256.0" prefHeight="27.0" prefWidth="64.0" text="Order ID :" textFill="#f7f9ff">
          <font>
             <Font size="14.0" />
          </font>
       </Label>
-      <JFXTextField fx:id="txtTableNum" focusColor="#405aa800" layoutX="552.0" layoutY="221.0" prefHeight="35.0" prefWidth="101.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
     </children>
 </AnchorPane>

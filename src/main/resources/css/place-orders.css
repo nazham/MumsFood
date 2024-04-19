@@ -6,8 +6,14 @@
     -fx-padding: 0 15 0 15;
     -fx-border-width: 3;
 }
+.txt-search {
+    -fx-prompt-text-fill: #F7F9FF;
+    -fx-text-fill: #F7F9FF;
+}
 
-#btnAddToCart, #btnPlaceOrder {
+
+
+#btnAddToCart, #btnPlaceOrder, #btnNewCustomer {
     -fx-background-color: #FFF27A;
     -fx-border-radius: 14;
     -fx-background-radius: 14;

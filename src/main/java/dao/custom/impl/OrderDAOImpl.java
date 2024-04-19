@@ -32,7 +32,7 @@ public class OrderDAOImpl implements OrderDAO {
             return  new OrderDTO(
                     resultSet.getString(1),
                     dateTime,
-                    resultSet.getString(3),
+                    Integer.parseInt(resultSet.getString(3)),
                     resultSet.getDouble(4),
                     resultSet.getString(5),
                     resultSet.getString(6),
@@ -46,8 +46,8 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public String getLastOrderId() throws SQLException, ClassNotFoundException {
         ResultSet resultSet = CrudUtil.execute("SELECT * FROM orders ORDER BY id DESC LIMIT 1");
-        if (!resultSet.next()) return "D001";
-        return resultSet.getString(1);
+        if (!resultSet.next()) return null;
+        return resultSet.getString("id");
     }
 
     @Override
@@ -67,8 +67,8 @@ public class OrderDAOImpl implements OrderDAO {
 
         for (OrderDetailDTO detailDto:list) {
             OrderDetail orderDetail = new OrderDetail(
-                    new OrderDetailKey(detailDto.getOrderId(), Integer.parseInt(detailDto.getItemCode())),
-                    session.find(Item.class, detailDto.getItemCode()),
+                    new OrderDetailKey(detailDto.getOrderId(), detailDto.getItemId()),
+                    session.find(Item.class, detailDto.getItemId()),
                     orders,
                     detailDto.getQty()
             );
