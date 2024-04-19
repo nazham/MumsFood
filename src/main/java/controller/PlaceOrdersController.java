@@ -7,6 +7,8 @@ import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import dao.custom.CustomerDAO;
+import dao.custom.OrderDAO;
+import dao.custom.impl.OrderDAOImpl;
 import dao.util.BOType;
 import dao.util.DAOFactory;
 import dao.util.DAOType;
@@ -19,19 +21,13 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
 import javafx.scene.input.KeyCode;
-import javafx.stage.Stage;
-import dao.custom.OrderDAO;
-import dao.custom.impl.OrderDAOImpl;
 
 import java.io.IOException;
 import java.net.URL;
@@ -127,50 +123,33 @@ public class PlaceOrdersController implements Initializable {
     private CustomerDTO customer;
 
     private double subTotal = 0.0;
-    private double total = 0.0;
-    private double discount = 0.0;
-
-
+    private final HomeController home = new HomeController();
     public void notificationsButtonOnAction() {
     }
-
     public void logoutButtonOnAction() {
     }
-
     public void editButtonOnAction() {
     }
-
     public void settingsButtonOnAction() {
     }
-
     public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/PlaceOrders.fxml"))));
-        stage.show();
+        home.viewPlaceOrder(actionEvent);
     }
 
     public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Orders.fxml"))));
-        stage.show();
+        home.viewOrders(actionEvent);
     }
 
     public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Customers.fxml"))));
-        stage.show();
+        home.viewCustomers(actionEvent);
     }
 
     public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Items.fxml"))));
-        stage.show();
+        home.viewItems(actionEvent);
     }
 
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Home.fxml"))));
-        stage.show();
+        home.viewHome(actionEvent);
     }
 
     @Override
@@ -215,6 +194,7 @@ public class PlaceOrdersController implements Initializable {
         });
 
         setOrderId();
+        txtDiscount.setText("0");
     }
 
     private ItemDTO findItemByCode(String code) {
@@ -268,7 +248,6 @@ public class PlaceOrdersController implements Initializable {
             throw new RuntimeException(e);
         }
     }
-
 
     public void placeOrderButtonOnAction() {
         List<OrderDetailDTO> list = new ArrayList<>();
@@ -333,6 +312,7 @@ public class PlaceOrdersController implements Initializable {
                 order.setAmount(order.getAmount()+orderTM.getAmount());
                 isExist = true;
                 subTotal += orderTM.getAmount();
+                tblOrders.refresh();
             }
         }
         if (!isExist){
@@ -343,6 +323,7 @@ public class PlaceOrdersController implements Initializable {
         lblSubTotal.setText(String.format("%.2f", subTotal));
 
         tblOrders.setItems(tmList);
+        setDiscount();
     }
 
     private void clearFields() {
@@ -366,13 +347,17 @@ public class PlaceOrdersController implements Initializable {
     }
 
     public void newCustomerOnAction(ActionEvent actionEvent) {
+
     }
 
     private void setDiscount(){
-        total=subTotal;
-        discount = Double.parseDouble(txtDiscount.getText());
-        discount /=100.00;
+        double total = subTotal;
+        double discount = Double.parseDouble(txtDiscount.getText());
+        discount /= 100.00;
         discount *= subTotal;
+
+        discount = Math.round(discount / 10.0) * 10.0;
+
         lblDiscount.setText(String.format("%.2f", discount));
         total -= discount;
         lblTotal.setText(String.format("%.2f", total));
