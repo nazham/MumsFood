@@ -1,7 +1,6 @@
 package controller;
 
 import bo.BOFactory;
-import bo.custom.CustomerBO;
 import bo.custom.ItemBO;
 import com.jfoenix.controls.JFXButton;
 import com.jfoenix.controls.JFXComboBox;
@@ -38,6 +37,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class PlaceOrdersController implements Initializable {
+    private final HomeController home = new HomeController();
     public JFXButton btnNewCustomer;
     public JFXTextField txtPhnNum;
     public JFXTextField txtAddress;
@@ -48,112 +48,59 @@ public class PlaceOrdersController implements Initializable {
     public JFXTextField txtTableNum;
     @FXML
     private JFXButton btnDashboard;
-
     @FXML
     private JFXButton btnItems;
-
     @FXML
     private JFXButton btnOrders;
-
     @FXML
     private JFXButton btnCustomers;
-
     @FXML
     private JFXButton btnPlaceOrders;
-
     @FXML
     private JFXButton btnSettings;
-
     @FXML
     private JFXButton btnEdit;
-
     @FXML
     private JFXTextField txtDescription;
-
     @FXML
     private JFXTextField txtUnitPrice;
-
     @FXML
     private JFXTextField txtQty;
-
     @FXML
     private TableView<OrderTM> tblOrders;
-
     @FXML
     private TableColumn colCode;
-
     @FXML
     private TableColumn colDescription;
-
     @FXML
     private TableColumn colQty;
-
     @FXML
     private TableColumn colAmount;
-
     @FXML
     private TableColumn colOption;
-
     @FXML
     private JFXButton btnPlaceOrder;
-
     @FXML
     private JFXButton btnAddToCart;
-
     @FXML
     private JFXComboBox cmbItemCode;
-
     @FXML
     private JFXTextField txtName;
     @FXML
     private Label lblOrderId;
     @FXML
     private Label lblTotal;
-
-    private CustomerBO customerBO = BOFactory.getInstance().getBo(BOType.CUSTOMER);
-    private ItemBO itemBO = BOFactory.getInstance().getBo(BOType.ITEM);
-
-    private CustomerDAO customerDAO = DAOFactory.getInstance().getDao(DAOType.CUSTOMER);
+    private final ItemBO itemBO = BOFactory.getInstance().getBo(BOType.ITEM);
+    private final CustomerDAO customerDAO = DAOFactory.getInstance().getDao(DAOType.CUSTOMER);
     private List<ItemDTO> items;
-    private List<CustomerDTO> customers;
-
-    private ObservableList<OrderTM> tmList = FXCollections.observableArrayList();
-    private OrderDAO orderDAO = new OrderDAOImpl();
-
+    private final ObservableList<OrderTM> tmList = FXCollections.observableArrayList();
+    private final OrderDAO orderDAO = new OrderDAOImpl();
     private CustomerDTO customer;
-
     private double subTotal = 0.0;
-    private final HomeController home = new HomeController();
-    public void notificationsButtonOnAction() {
-    }
-    public void logoutButtonOnAction() {
-    }
-    public void editButtonOnAction() {
-    }
-    public void settingsButtonOnAction() {
-    }
-    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewPlaceOrder(actionEvent);
-    }
-
-    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewOrders(actionEvent);
-    }
-
-    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewCustomers(actionEvent);
-    }
-
-    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewItems(actionEvent);
-    }
-
-    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewHome(actionEvent);
-    }
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
+        System.out.println("Initialized");
         colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("desc"));
         colQty.setCellValueFactory(new PropertyValueFactory<>("qty"));
@@ -161,7 +108,6 @@ public class PlaceOrdersController implements Initializable {
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
 
         try {
-            customers = customerBO.allCustomers();
             items = itemBO.allItems();
         } catch (SQLException e) {
             throw new RuntimeException(e);
@@ -170,7 +116,6 @@ public class PlaceOrdersController implements Initializable {
         }
 
         loadItemCodes();
-
 
         txtPhnNum.setOnKeyPressed(event -> {
             if (event.getCode() == KeyCode.ENTER) {
@@ -186,17 +131,17 @@ public class PlaceOrdersController implements Initializable {
 
         cmbItemCode.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             ItemDTO matchedItem = null;
-            if (newValue != null) {matchedItem = findItemByCode(newValue.toString());}
+            if (newValue != null) {
+                matchedItem = findItemByCode(newValue.toString());
+            }
             if (matchedItem != null) {
                 txtDescription.setText(matchedItem.getDesc());
                 txtUnitPrice.setText(String.format("%.2f", matchedItem.getUnitPrice()));
             }
         });
-
         setOrderId();
         txtDiscount.setText("0");
     }
-
     private ItemDTO findItemByCode(String code) {
         for (ItemDTO itemDTO : items) {
             if (itemDTO.getCode().equals(code)) {
@@ -208,7 +153,6 @@ public class PlaceOrdersController implements Initializable {
 
     private void searchPhoneNumber() throws SQLException, ClassNotFoundException {
         String phoneNumber = txtPhnNum.getText();
-
         customer = customerDAO.searchCustomer(phoneNumber);
 
         if (customer != null) {
@@ -222,6 +166,7 @@ public class PlaceOrdersController implements Initializable {
             alert.setContentText("No customer found with the given phone number.");
             alert.showAndWait();
             clearFields();
+            System.out.println("searchPhoneNumber() running.........");
         }
     }
 
@@ -256,7 +201,7 @@ public class PlaceOrdersController implements Initializable {
                     lblOrderId.getText(),
                     findItemByCode(orderTM.getCode()).getId(),
                     orderTM.getQty(),
-                    orderTM.getAmount()/orderTM.getQty()
+                    orderTM.getAmount() / orderTM.getQty()
             ));
         }
 
@@ -270,36 +215,33 @@ public class PlaceOrdersController implements Initializable {
                 list
         );
 
-
         try {
             boolean isSaved = orderDAO.save(dto);
-            if (isSaved){
+            if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Order saved!").show();
                 setOrderId();
-            }else{
+            } else {
                 new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
             }
-        } catch (SQLException e) {
-            throw new RuntimeException(e);
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
         clearFields();
     }
-
-    public void addToCartButtonOnAction() {
+    public void addToCartButtonOnAction() throws SQLException, ClassNotFoundException {
+        searchPhoneNumber();
 
         JFXButton btn = new JFXButton("Delete");
         OrderTM orderTM = new OrderTM(
                 cmbItemCode.getValue().toString(),
                 txtDescription.getText(),
                 Integer.parseInt(txtQty.getText()),
-                Double.parseDouble(txtUnitPrice.getText())*Integer.parseInt(txtQty.getText()),
+                Double.parseDouble(txtUnitPrice.getText()) * Integer.parseInt(txtQty.getText()),
                 btn
         );
         btn.setOnAction(actionEvent -> {
             tmList.remove(orderTM);
-            subTotal -=orderTM.getAmount();
+            subTotal -= orderTM.getAmount();
             lblSubTotal.setText(String.format("%.2f", subTotal));
             tblOrders.refresh();
             setDiscount();
@@ -307,17 +249,17 @@ public class PlaceOrdersController implements Initializable {
         });
         boolean isExist = false;
         for (OrderTM order : tmList) {
-            if (order.getCode().equals(orderTM.getCode())){
-                order.setQty(order.getQty()+orderTM.getQty());
-                order.setAmount(order.getAmount()+orderTM.getAmount());
+            if (order.getCode().equals(orderTM.getCode())) {
+                order.setQty(order.getQty() + orderTM.getQty());
+                order.setAmount(order.getAmount() + orderTM.getAmount());
                 isExist = true;
                 subTotal += orderTM.getAmount();
                 tblOrders.refresh();
             }
         }
-        if (!isExist){
+        if (!isExist) {
             tmList.add(orderTM);
-            subTotal +=orderTM.getAmount();
+            subTotal += orderTM.getAmount();
         }
 
         lblSubTotal.setText(String.format("%.2f", subTotal));
@@ -325,32 +267,49 @@ public class PlaceOrdersController implements Initializable {
         tblOrders.setItems(tmList);
         setDiscount();
     }
-
     private void clearFields() {
         txtName.clear();
+        txtPhnNum.clear();
+        txtAddress.clear();
+
+        cmbItemCode.getSelectionModel().clearSelection();
         txtDescription.clear();
         txtUnitPrice.clear();
         txtQty.clear();
-        cmbItemCode.getSelectionModel().clearSelection();
-        txtPhnNum.clear();
+
         cmbOrderType.getSelectionModel().clearSelection();
-        txtDiscount.clear();
+        txtTableNum.clear();
+        setOrderId();
+
         tmList.clear();
         tblOrders.refresh();
+
+        txtDiscount.clear();
         lblTotal.setText("0.00");
         lblSubTotal.setText("0.00");
         lblDiscount.setText("0.00");
-        setOrderId();
     }
-
     public void txtPhnNumOnAction(ActionEvent actionEvent) {
     }
 
-    public void newCustomerOnAction(ActionEvent actionEvent) {
-
+    public void newCustomerOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewCustomers(actionEvent);
     }
 
-    private void setDiscount(){
+
+    public void onNewCustomerAdded(CustomerDTO customer) {
+        CustomerDTO customerDTO = new CustomerDTO(
+                customer.getName(),
+                customer.getPhoneNumber(),
+                customer.getAddress()
+        );
+        System.out.println(customerDTO.toString());
+        txtPhnNum.setText(customerDTO.getPhoneNumber());
+        txtName.setText(customerDTO.getName());
+        txtAddress.setText(customerDTO.getAddress());
+
+    }
+    private void setDiscount() {
         double total = subTotal;
         double discount = Double.parseDouble(txtDiscount.getText());
         discount /= 100.00;
@@ -362,8 +321,39 @@ public class PlaceOrdersController implements Initializable {
         total -= discount;
         lblTotal.setText(String.format("%.2f", total));
     }
-
     public void txtDiscountOnAction(ActionEvent actionEvent) {
         setDiscount();
+    }
+
+    public void notificationsButtonOnAction() {
+    }
+
+    public void logoutButtonOnAction() {
+    }
+
+    public void editButtonOnAction() {
+    }
+
+    public void settingsButtonOnAction() {
+    }
+
+    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewPlaceOrder(actionEvent);
+    }
+
+    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewOrders(actionEvent);
+    }
+
+    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewCustomers(actionEvent);
+    }
+
+    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewItems(actionEvent);
+    }
+
+    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewHome(actionEvent);
     }
 }

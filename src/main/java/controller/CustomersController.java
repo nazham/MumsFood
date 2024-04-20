@@ -12,11 +12,16 @@ import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
+import javafx.scene.Node;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.stage.Stage;
 import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
@@ -32,102 +37,55 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 public class CustomersController implements Initializable {
-    @FXML
-    private JFXButton btnDashboard;
-
-    @FXML
-    private JFXButton btnItems;
-
-    @FXML
-    private JFXButton btnOrders;
-
-    @FXML
-    private JFXButton btnCustomers;
-
-    @FXML
-    private JFXButton btnPlaceOrders;
-
-    @FXML
-    private JFXButton btnSettings;
-
-    @FXML
-    private JFXButton btnLogout;
-
-    @FXML
-    private JFXButton btnNotifications;
-
-    @FXML
-    private JFXButton btnEdit;
-
-    @FXML
-    private JFXTextField txtName;
-
-    @FXML
-    private JFXTextField txtPhnNum;
-
-    @FXML
-    private JFXTextField txtAddress;
-
-    @FXML
-    private JFXTextField txtSearch;
-
-    @FXML
-    private TableView<CustomerTM> tblCustomers;
-
-    @FXML
-    private TableColumn<?, ?> colId;
-
-    @FXML
-    private TableColumn<?, ?> colName;
-
-    @FXML
-    private TableColumn<?, ?> colPhnNum;
-
-    @FXML
-    private TableColumn<?, ?> colAddress;
-
-    @FXML
-    private TableColumn<?, ?> colOption;
-
-    @FXML
-    private JFXButton btnSave;
-
-    @FXML
-    private JFXButton btnUpdate;
-
     private final CustomerBO customerBO = BOFactory.getInstance().getBo(BOType.CUSTOMER);
     private final HomeController home = new HomeController();
+    @FXML
+    private JFXButton btnDashboard;
+    @FXML
+    private JFXButton btnItems;
+    @FXML
+    private JFXButton btnOrders;
+    @FXML
+    private JFXButton btnCustomers;
+    @FXML
+    private JFXButton btnPlaceOrders;
+    @FXML
+    private JFXButton btnSettings;
+    @FXML
+    private JFXButton btnLogout;
+    @FXML
+    private JFXButton btnNotifications;
+    @FXML
+    private JFXButton btnEdit;
+    @FXML
+    private JFXTextField txtName;
+    @FXML
+    private JFXTextField txtPhnNum;
+    @FXML
+    private JFXTextField txtAddress;
+    @FXML
+    private JFXTextField txtSearch;
+    @FXML
+    private TableView<CustomerTM> tblCustomers;
+    @FXML
+    private TableColumn<?, ?> colId;
+    @FXML
+    private TableColumn<?, ?> colName;
+    @FXML
+    private TableColumn<?, ?> colPhnNum;
+    @FXML
+    private TableColumn<?, ?> colAddress;
+    @FXML
+    private TableColumn<?, ?> colOption;
+    @FXML
+    private JFXButton btnSave;
+    @FXML
+    private JFXButton btnUpdate;
+    private PlaceOrdersController placeOrderController;
+    private CustomerDTO customerDto = new CustomerDTO();
 
-    public void notificationsButtonOnAction() {
-    }
-
-    public void logoutButtonOnAction() {
-    }
-
-    public void editButtonOnAction() {
-    }
-
-    public void settingsButtonOnAction() {
-    }
-
-    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewPlaceOrder(actionEvent);
-    }
-
-    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewOrders(actionEvent);
-    }
-
-    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewCustomers(actionEvent);
-    }
-
-    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewItems(actionEvent);
-    }
-
-    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewHome(actionEvent);
+    public void setPlaceOrderController(PlaceOrdersController placeOrderController) {
+        this.placeOrderController = placeOrderController;
     }
 
     @Override
@@ -147,7 +105,6 @@ public class CustomersController implements Initializable {
                 btnSave.setDisable(false); // Enable save button when no record is selected
             }
         });
-
     }
 
     private void loadCustomers() {
@@ -195,10 +152,8 @@ public class CustomersController implements Initializable {
                 new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
             }
         } catch (NumberFormatException e) {
-            // Handle invalid ID format
             new Alert(Alert.AlertType.ERROR, "Invalid customer ID format").show();
         } catch (ClassNotFoundException | SQLException e) {
-            // Handle other exceptions
             e.printStackTrace();
         }
     }
@@ -207,14 +162,14 @@ public class CustomersController implements Initializable {
         if (isAnyInputDataInvalid()) {
             return;
         }
+        customerDto = new CustomerDTO(
+                txtName.getText(),
+                txtPhnNum.getText(),
+                txtAddress.getText()
+        );
+
         try {
-            boolean isSaved = customerBO.saveCustomer(
-                new CustomerDTO(
-                    txtName.getText(),
-                    txtPhnNum.getText(),
-                    txtAddress.getText()
-                )
-            );
+            boolean isSaved = customerBO.saveCustomer(customerDto);
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Customer Saved!").show();
                 loadCustomers();
@@ -225,6 +180,25 @@ public class CustomersController implements Initializable {
         } catch (ClassNotFoundException | SQLException e) {
             e.printStackTrace();
         }
+
+    }
+
+    public void saveButtonOnAction(ActionEvent actionEvent) throws IOException {
+        saveCustomer();
+        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PlaceOrders.fxml"));
+        Parent root = loader.load();
+        placeOrderController = loader.getController();
+
+        // Pass the PlaceOrderController instance to CustomerFormController
+        FXMLLoader customerFormLoader = new FXMLLoader(getClass().getResource("/view/Customers.fxml"));
+        customerFormLoader.load();
+        CustomersController customerFormController = customerFormLoader.getController();
+        customerFormController.setPlaceOrderController(placeOrderController);
+
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(root));
+        stage.show();
+        placeOrderController.onNewCustomerAdded(customerDto);
     }
 
     private void clearFields() {
@@ -241,7 +215,6 @@ public class CustomersController implements Initializable {
         if (matcher.matches()) {
             return true;
         }
-
         Alert alert = new Alert(Alert.AlertType.WARNING);
         alert.setTitle("Invalid Phone Number");
         alert.setHeaderText(null);
@@ -304,14 +277,9 @@ public class CustomersController implements Initializable {
         }
     }
 
-    public void saveButtonOnAction() {
-        saveCustomer();
-    }
-
     public void updateButtonOnAction() {
         updateCustomer();
     }
-
 
     public void reportButtonOnAction(ActionEvent actionEvent) {
         try {
@@ -319,8 +287,41 @@ public class CustomersController implements Initializable {
             JasperReport jasperReport = JasperCompileManager.compileReport(design);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, null, DBConnection.getInstance().getConnection());
             JasperViewer.viewReport(jasperPrint, false);
-        }catch (JRException | ClassNotFoundException | SQLException e){
+        } catch (JRException | ClassNotFoundException | SQLException e) {
             throw new RuntimeException(e);
         }
     }
+
+    public void notificationsButtonOnAction() {
+    }
+
+    public void logoutButtonOnAction() {
+    }
+
+    public void editButtonOnAction() {
+    }
+
+    public void settingsButtonOnAction() {
+    }
+
+    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewPlaceOrder(actionEvent);
+    }
+
+    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewOrders(actionEvent);
+    }
+
+    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewCustomers(actionEvent);
+    }
+
+    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewItems(actionEvent);
+    }
+
+    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewHome(actionEvent);
+    }
+
 }
