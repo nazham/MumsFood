@@ -1,15 +1,11 @@
 package bo.custom.impl;
 
 import bo.custom.CategoryBO;
-import bo.custom.CustomerBO;
 import dao.custom.CategoryDAO;
-import dao.custom.CustomerDAO;
 import dao.util.DAOFactory;
 import dao.util.DAOType;
 import dto.CategoryDTO;
-import dto.CustomerDTO;
 import entity.Category;
-import entity.Customer;
 
 import java.sql.SQLException;
 import java.util.ArrayList;

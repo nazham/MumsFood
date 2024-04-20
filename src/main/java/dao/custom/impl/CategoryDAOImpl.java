@@ -1,10 +1,8 @@
 package dao.custom.impl;
 
 import dao.custom.CategoryDAO;
-import dao.custom.CustomerDAO;
 import dao.util.HibernateUtil;
 import dto.CategoryDTO;
-import dto.CustomerDTO;
 import entity.Category;
 import entity.Customer;
 import org.hibernate.Session;

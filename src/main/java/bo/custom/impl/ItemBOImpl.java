@@ -7,7 +7,6 @@ import dao.util.DAOFactory;
 import dao.util.DAOType;
 import dto.ItemDTO;
 import entity.Category;
-import entity.Customer;
 import entity.Item;
 
 import java.sql.SQLException;
