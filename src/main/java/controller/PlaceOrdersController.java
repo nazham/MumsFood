@@ -26,15 +26,14 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.scene.input.KeyCode;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.SQLException;
 import java.time.LocalDateTime;
-import java.util.ArrayList;
-import java.util.List;
-import java.util.ResourceBundle;
+import java.util.*;
+import java.util.regex.Matcher;
+import java.util.regex.Pattern;
 
 public class PlaceOrdersController implements Initializable {
     private final HomeController home = new HomeController();
@@ -100,13 +99,6 @@ public class PlaceOrdersController implements Initializable {
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
-        System.out.println("Initialized");
-        colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
-        colDescription.setCellValueFactory(new PropertyValueFactory<>("desc"));
-        colQty.setCellValueFactory(new PropertyValueFactory<>("qty"));
-        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
-        colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
-
         try {
             items = itemBO.allItems();
         } catch (SQLException e) {
@@ -114,11 +106,23 @@ public class PlaceOrdersController implements Initializable {
         } catch (ClassNotFoundException e) {
             e.printStackTrace();
         }
-
         loadItemCodes();
 
-        txtPhnNum.setOnKeyPressed(event -> {
-            if (event.getCode() == KeyCode.ENTER) {
+        btnAddToCart.setDisable(true);
+        btnPlaceOrder.setDisable(true);
+
+        TextFieldUtils.setNumericInputFilter(txtPhnNum, 10);
+        TextFieldUtils.setNumericInputFilter(txtQty, 3);
+        TextFieldUtils.allowNumericAndPeriod(txtDiscount, 4);
+        TextFieldUtils.setNumericInputFilter(txtTableNum, 2);
+
+        txtName.setEditable(false);
+        txtAddress.setEditable(false);
+        txtDescription.setEditable(false);
+        txtUnitPrice.setEditable(false);
+
+        txtPhnNum.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {
                 try {
                     searchPhoneNumber();
                 } catch (SQLException e) {
@@ -129,6 +133,22 @@ public class PlaceOrdersController implements Initializable {
             }
         });
 
+        txtQty.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateQty();}
+        });
+        txtDiscount.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateDiscount();}
+        });
+        cmbItemCode.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateCode();}
+        });
+
+        colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
+        colDescription.setCellValueFactory(new PropertyValueFactory<>("desc"));
+        colQty.setCellValueFactory(new PropertyValueFactory<>("qty"));
+        colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
+        colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
+
         cmbItemCode.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             ItemDTO matchedItem = null;
             if (newValue != null) {
@@ -137,11 +157,55 @@ public class PlaceOrdersController implements Initializable {
             if (matchedItem != null) {
                 txtDescription.setText(matchedItem.getDesc());
                 txtUnitPrice.setText(String.format("%.2f", matchedItem.getUnitPrice()));
+                txtQty.setText("1");
+                btnAddToCart.setDisable(false);
             }
         });
         setOrderId();
         txtDiscount.setText("0");
     }
+    private boolean validateTableNum() {
+        return TextFieldUtils.isEmptyOrNonPositiveInteger(txtTableNum, "Table Number");
+    }
+    private boolean validateCode() {
+        return TextFieldUtils.isEmptyComboBox(cmbItemCode, "Item Code");
+    }
+    private boolean validateOrderType() {
+        return TextFieldUtils.isEmptyComboBox(cmbOrderType, "Order type");
+    }
+    private boolean validateQty() {
+        return TextFieldUtils.isEmptyOrNonPositiveInteger(txtQty, "Item Quantity");
+    }
+    private boolean validateDiscount() {
+        return TextFieldUtils.isEmptyField(txtDiscount, "Order Discount");
+    }
+
+    private boolean validatePhoneNumber() {
+        Pattern pattern = Pattern.compile("^07\\d{8}$");
+        Matcher matcher = pattern.matcher(txtPhnNum.getText());
+
+        if (matcher.matches()) {
+            return false;
+        }
+        Alert alert = new Alert(Alert.AlertType.WARNING);
+        alert.setTitle("Invalid Phone Number");
+        alert.setHeaderText(null);
+        alert.setContentText("Please enter a valid phone number starting with '07' ");
+        alert.showAndWait();
+        return true;
+    }
+    private boolean isAnyInputDataInvalid() {
+        return  validatePhoneNumber() ||
+                TextFieldUtils.isEmptyField(txtName, "Customer Name") ||
+                TextFieldUtils.isEmptyField(txtAddress, "Customer Address") ||
+                validateCode() ||
+                TextFieldUtils.isEmptyField(txtDescription, "Item Description") ||
+                TextFieldUtils.isEmptyField(txtUnitPrice, "Item Unit Price") ||
+                validateQty() ||
+                validateTableNum() ||
+                validateDiscount();
+    }
+
     private ItemDTO findItemByCode(String code) {
         for (ItemDTO itemDTO : items) {
             if (itemDTO.getCode().equals(code)) {
@@ -152,21 +216,23 @@ public class PlaceOrdersController implements Initializable {
     }
 
     private void searchPhoneNumber() throws SQLException, ClassNotFoundException {
+        if (validatePhoneNumber()){return;}
         String phoneNumber = txtPhnNum.getText();
-        customer = customerDAO.searchCustomer(phoneNumber);
-
-        if (customer != null) {
-            txtName.setText(customer.getName());
-            txtAddress.setText(customer.getAddress());
-        } else {
-
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Customer Not Found");
-            alert.setHeaderText(null);
-            alert.setContentText("No customer found with the given phone number.");
-            alert.showAndWait();
-            clearFields();
-            System.out.println("searchPhoneNumber() running.........");
+        try{
+            customer = customerDAO.searchCustomer(phoneNumber);
+            if (customer != null) {
+                txtName.setText(customer.getName());
+                txtAddress.setText(customer.getAddress());
+            } else {
+                Alert alert = new Alert(Alert.AlertType.INFORMATION);
+                alert.setTitle("Customer Not Found");
+                alert.setHeaderText(null);
+                alert.setContentText("No customer found with the given phone number.");
+                alert.showAndWait();
+                clearFields();
+            }
+        } catch (SQLException | ClassNotFoundException e) {
+            throw new RuntimeException(e);
         }
     }
 
@@ -195,11 +261,15 @@ public class PlaceOrdersController implements Initializable {
     }
 
     public void placeOrderButtonOnAction() {
+        if (isAnyInputDataInvalid()) {
+            System.out.println("place order rejected");
+            return;
+        }
         List<OrderDetailDTO> list = new ArrayList<>();
         for (OrderTM orderTM : tmList) {
             list.add(new OrderDetailDTO(
                     lblOrderId.getText(),
-                    findItemByCode(orderTM.getCode()).getId(),
+                    Objects.requireNonNull(findItemByCode(orderTM.getCode())).getId(),
                     orderTM.getQty(),
                     orderTM.getAmount() / orderTM.getQty()
             ));
@@ -220,6 +290,7 @@ public class PlaceOrdersController implements Initializable {
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Order saved!").show();
                 setOrderId();
+                subTotal=0.00;
             } else {
                 new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
             }
@@ -229,8 +300,13 @@ public class PlaceOrdersController implements Initializable {
         clearFields();
     }
     public void addToCartButtonOnAction() throws SQLException, ClassNotFoundException {
+        if(validateQty() || validateDiscount()){
+            System.out.println("add to cart rejected");
+            return;
+        }
         searchPhoneNumber();
-
+        btnAddToCart.setDisable(false);
+        btnPlaceOrders.setDisable(false);
         JFXButton btn = new JFXButton("Delete");
         OrderTM orderTM = new OrderTM(
                 cmbItemCode.getValue().toString(),
@@ -244,8 +320,9 @@ public class PlaceOrdersController implements Initializable {
             subTotal -= orderTM.getAmount();
             lblSubTotal.setText(String.format("%.2f", subTotal));
             tblOrders.refresh();
+            TextFieldUtils.isEmptyField(txtDiscount, "Order Discount");
+            txtDiscount.setText("0");
             setDiscount();
-
         });
         boolean isExist = false;
         for (OrderTM order : tmList) {
@@ -266,6 +343,7 @@ public class PlaceOrdersController implements Initializable {
 
         tblOrders.setItems(tmList);
         setDiscount();
+        btnPlaceOrder.setDisable(false);
     }
     private void clearFields() {
         txtName.clear();
@@ -284,26 +362,24 @@ public class PlaceOrdersController implements Initializable {
         tmList.clear();
         tblOrders.refresh();
 
-        txtDiscount.clear();
+        txtDiscount.setText("0.00");
         lblTotal.setText("0.00");
         lblSubTotal.setText("0.00");
         lblDiscount.setText("0.00");
     }
-    public void txtPhnNumOnAction(ActionEvent actionEvent) {
+    public void txtPhnNumOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+
     }
 
     public void newCustomerOnAction(ActionEvent actionEvent) throws IOException {
         home.viewCustomers(actionEvent);
     }
-
-
     public void onNewCustomerAdded(CustomerDTO customer) {
         CustomerDTO customerDTO = new CustomerDTO(
                 customer.getName(),
                 customer.getPhoneNumber(),
                 customer.getAddress()
         );
-        System.out.println(customerDTO.toString());
         txtPhnNum.setText(customerDTO.getPhoneNumber());
         txtName.setText(customerDTO.getName());
         txtAddress.setText(customerDTO.getAddress());

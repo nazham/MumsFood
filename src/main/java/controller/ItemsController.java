@@ -103,38 +103,6 @@ public class ItemsController implements Initializable {
 
     private final HomeController home = new HomeController();
 
-    public void notificationsButtonOnAction() {
-    }
-
-    public void logoutButtonOnAction() {
-    }
-
-    public void editButtonOnAction() {
-    }
-
-    public void settingsButtonOnAction() {
-    }
-
-    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewPlaceOrder(actionEvent);
-    }
-
-    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewOrders(actionEvent);
-    }
-
-    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewCustomers(actionEvent);
-    }
-
-    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewItems(actionEvent);
-    }
-
-    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
-        home.viewHome(actionEvent);
-    }
-
     private void loadItems() {
         ObservableList<ItemTM> tmList = FXCollections.observableArrayList();
         try {
@@ -150,9 +118,9 @@ public class ItemsController implements Initializable {
                         btn
                 );
 
-                btn.setOnAction(actionEvent -> {
-                    deleteItem(itemTm.getCode());
-                });
+                btn.setOnAction(actionEvent ->
+                    deleteItem(itemTm.getCode())
+                );
 
                 tmList.add(itemTm);
             }
@@ -192,11 +160,9 @@ public class ItemsController implements Initializable {
 
         cmbCategory.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             if (newValue != null) {
-                cmbCategory.setValue(newValue.toString());
+                cmbCategory.setValue(newValue);
             }
         });
-
-
 
         tblItems.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue != null) {
@@ -206,8 +172,20 @@ public class ItemsController implements Initializable {
             } else {
                 btnSave.setDisable(false); // Enable save button when no record is selected
             }
+        });
 
-
+        TextFieldUtils.setNumericInputFilter(txtUnitPrice, 6);
+        txtDescription.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateDescription();}
+        });
+        txtCode.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateCode();}
+        });
+        txtUnitPrice.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateUnitPrice();}
+        });
+        cmbCategory.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {isCategorySelected();}
         });
     }
 
@@ -220,64 +198,24 @@ public class ItemsController implements Initializable {
         }
     }
 
+
     private boolean validateDescription() {
-        String name = txtDescription.getText();
-        if (name.trim().isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid Description");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter a Description");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
+        return TextFieldUtils.isEmptyField(txtDescription, "Item Description");
+    }
+    private boolean validateCode() {
+        return TextFieldUtils.isEmptyField(txtCode, "Item Code");
     }
 
     private boolean validateUnitPrice() {
-        double unitPrice;
-        try {
-            unitPrice = Double.parseDouble(txtUnitPrice.getText());
-        } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid Unit Price");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter a valid unit price");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
+        return TextFieldUtils.isEmptyField(txtUnitPrice, "Item Unit Price");
     }
 
     public boolean isCategorySelected() {
-        if (cmbCategory.getValue() == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Category Not Selected");
-            alert.setHeaderText(null);
-            alert.setContentText("Please select a category.");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
+        return TextFieldUtils.isEmptyComboBox(cmbCategory, "Item Category");
     }
 
-//    private boolean validateCode() {
-//        Pattern pattern = Pattern.compile("^P[0-9]{3}$");
-//        Matcher matcher = pattern.matcher(txtCode.getText());
-//
-//        if (matcher.find() && matcher.group().equals(txtCode.getText())) {
-//            return true;
-//        }
-//
-//        Alert alert = new Alert(Alert.AlertType.WARNING);
-//        alert.setTitle("Invalid Code");
-//        alert.setHeaderText(null);
-//        alert.setContentText("Please enter a valid code");
-//        alert.showAndWait();
-//        return false;
-//    }
-
     private boolean isAnyInputDataInvalid() {
-        return !validateUnitPrice() | !validateDescription() | !isCategorySelected();
+        return validateUnitPrice() || validateDescription() || isCategorySelected() || validateCode();
     }
 
     public void deleteItem(String id) {
@@ -384,5 +322,36 @@ public class ItemsController implements Initializable {
 
     public void cmbCategoryOnAction(ActionEvent actionEvent) {
 
+    }
+    public void notificationsButtonOnAction() {
+    }
+
+    public void logoutButtonOnAction() {
+    }
+
+    public void editButtonOnAction() {
+    }
+
+    public void settingsButtonOnAction() {
+    }
+
+    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewPlaceOrder(actionEvent);
+    }
+
+    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewOrders(actionEvent);
+    }
+
+    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewCustomers(actionEvent);
+    }
+
+    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewItems(actionEvent);
+    }
+
+    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewHome(actionEvent);
     }
 }

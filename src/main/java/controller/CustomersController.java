@@ -83,6 +83,7 @@ public class CustomersController implements Initializable {
     private JFXButton btnUpdate;
     private PlaceOrdersController placeOrderController;
     private CustomerDTO customerDto = new CustomerDTO();
+    boolean isSaved;
 
     public void setPlaceOrderController(PlaceOrdersController placeOrderController) {
         this.placeOrderController = placeOrderController;
@@ -96,15 +97,28 @@ public class CustomersController implements Initializable {
         colAddress.setCellValueFactory(new PropertyValueFactory<>("address"));
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
         loadCustomers();
+        btnUpdate.setDisable(true);
 
         tblCustomers.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue != null) {
                 setData(newValue);
+                btnUpdate.setDisable(false);
                 btnSave.setDisable(true); // Disable save button when a record is selected
             } else {
                 btnSave.setDisable(false); // Enable save button when no record is selected
+                clearFields();
             }
         });
+
+        TextFieldUtils.setNumericInputFilter(txtPhnNum, 10);
+        TextFieldUtils.allowAlphabeticInputOnly(txtName);
+        txtName.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {TextFieldUtils.isEmptyField(txtName, "Customer Name");}
+        });
+        txtPhnNum.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validatePhoneNumber();}
+        });
+
     }
 
     private void loadCustomers() {
@@ -121,9 +135,9 @@ public class CustomersController implements Initializable {
                         btn
                 );
 
-                btn.setOnAction(actionEvent -> {
-                    deleteCustomer(customerTM.getId());
-                });
+                btn.setOnAction(actionEvent ->
+                    deleteCustomer(customerTM.getId())
+                );
 
                 tmList.add(customerTM);
             }
@@ -169,7 +183,7 @@ public class CustomersController implements Initializable {
         );
 
         try {
-            boolean isSaved = customerBO.saveCustomer(customerDto);
+            isSaved = customerBO.saveCustomer(customerDto);
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Customer Saved!").show();
                 loadCustomers();
@@ -185,20 +199,22 @@ public class CustomersController implements Initializable {
 
     public void saveButtonOnAction(ActionEvent actionEvent) throws IOException {
         saveCustomer();
-        FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PlaceOrders.fxml"));
-        Parent root = loader.load();
-        placeOrderController = loader.getController();
+        if (isSaved) {
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PlaceOrders.fxml"));
+            Parent root = loader.load();
+            placeOrderController = loader.getController();
 
-        // Pass the PlaceOrderController instance to CustomerFormController
-        FXMLLoader customerFormLoader = new FXMLLoader(getClass().getResource("/view/Customers.fxml"));
-        customerFormLoader.load();
-        CustomersController customerFormController = customerFormLoader.getController();
-        customerFormController.setPlaceOrderController(placeOrderController);
+            // Pass the PlaceOrderController instance to CustomerFormController
+            FXMLLoader customerFormLoader = new FXMLLoader(getClass().getResource("/view/Customers.fxml"));
+            customerFormLoader.load();
+            CustomersController customerFormController = customerFormLoader.getController();
+            customerFormController.setPlaceOrderController(placeOrderController);
 
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(root));
-        stage.show();
-        placeOrderController.onNewCustomerAdded(customerDto);
+            Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+            placeOrderController.onNewCustomerAdded(customerDto);
+        }
     }
 
     private void clearFields() {
@@ -222,36 +238,8 @@ public class CustomersController implements Initializable {
         alert.showAndWait();
         return false;
     }
-
-    private boolean validateName() {
-        String name = txtName.getText();
-        if (name.trim().isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid Name");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter a name");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
-    }
-
-    private boolean validateAddress() {
-        String address = txtAddress.getText();
-        if (address.trim().isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid Address");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter an address");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
-    }
-
-
     private boolean isAnyInputDataInvalid() {
-        return !validateName() | !validatePhoneNumber() | !validateAddress();
+        return TextFieldUtils.isEmptyField(txtName, "Customer Name") || !validatePhoneNumber() || TextFieldUtils.isEmptyField(txtAddress, "Customer Address");
     }
 
     public void updateCustomer() {
@@ -322,6 +310,10 @@ public class CustomersController implements Initializable {
 
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
         home.viewHome(actionEvent);
+    }
+
+    public void txtAddressOnAction(ActionEvent actionEvent) throws IOException {
+        saveButtonOnAction(actionEvent);
     }
 
 }
