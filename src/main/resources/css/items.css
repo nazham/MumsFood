@@ -7,7 +7,7 @@
     -fx-border-width: 3;
 }
 
-#btnSave, #btnUpdate {
+#btnSave, #btnUpdate, #btnReport {
     -fx-background-color: #FFF27A;
     -fx-border-radius: 14;
     -fx-background-radius: 14;

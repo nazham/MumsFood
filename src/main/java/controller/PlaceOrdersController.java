@@ -11,6 +11,7 @@ import dao.custom.impl.OrderDAOImpl;
 import dao.util.BOType;
 import dao.util.DAOFactory;
 import dao.util.DAOType;
+import db.DBConnection;
 import dto.CustomerDTO;
 import dto.ItemDTO;
 import dto.OrderDTO;
@@ -26,6 +27,10 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
+import net.sf.jasperreports.engine.*;
+import net.sf.jasperreports.engine.design.JasperDesign;
+import net.sf.jasperreports.engine.xml.JRXmlLoader;
+import net.sf.jasperreports.view.JasperViewer;
 
 import java.io.IOException;
 import java.net.URL;
@@ -34,6 +39,7 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class PlaceOrdersController implements Initializable {
     private final HomeController home = new HomeController();
@@ -149,6 +155,7 @@ public class PlaceOrdersController implements Initializable {
         colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
 
+
         cmbItemCode.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             ItemDTO matchedItem = null;
             if (newValue != null) {
@@ -164,6 +171,7 @@ public class PlaceOrdersController implements Initializable {
         setOrderId();
         txtDiscount.setText("0");
     }
+
     private boolean validateTableNum() {
         return TextFieldUtils.isEmptyOrNonPositiveInteger(txtTableNum, "Table Number");
     }
@@ -281,23 +289,58 @@ public class PlaceOrdersController implements Initializable {
                 customer.getId(),
                 Double.parseDouble(lblTotal.getText()),
                 "Dine-In",
-                "U001",
+                "1",
                 list
         );
-
+        boolean isSaved = false;
         try {
-            boolean isSaved = orderDAO.save(dto);
+            isSaved = orderDAO.save(dto);
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Order saved!").show();
-                setOrderId();
-                subTotal=0.00;
+
             } else {
                 new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+
+        if(isSaved){
+
+        }
+
+    }
+
+    public void printBillButtonOnAction(ActionEvent actionEvent) {
+        try {
+            JasperDesign design = JRXmlLoader.load(getClass().getResourceAsStream("/reports/bill.jrxml"));
+            Map<String, Object> parameters = new HashMap<>();
+            parameters.put("orderId", lblOrderId.getText());
+            parameters.put("tblNo", txtTableNum.getText());
+            parameters.put("subTotal", lblSubTotal.getText());
+            parameters.put("discount", lblDiscount.getText());
+            JasperReport jasperReport = JasperCompileManager.compileReport(design);
+            JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, DBConnection.getInstance().getConnection());
+            JasperViewer.viewReport(jasperPrint, false);
+
+            // Show success message alert
+            showAlert(Alert.AlertType.INFORMATION, "Success", "Bill printed successfully.");
+        } catch (JRException | ClassNotFoundException | SQLException e) {
+            // Show error message alert
+            showAlert(Alert.AlertType.ERROR, "Error", "Failed to print bill: " + e.getMessage());
+            throw new RuntimeException(e);
+        }
+        setOrderId();
+        subTotal=0.00;
         clearFields();
+    }
+
+    private void showAlert(Alert.AlertType alertType, String title, String message) {
+        Alert alert = new Alert(alertType);
+        alert.setTitle(title);
+        alert.setHeaderText(null);
+        alert.setContentText(message);
+        alert.showAndWait();
     }
     public void addToCartButtonOnAction() throws SQLException, ClassNotFoundException {
         if(validateQty() || validateDiscount()){
@@ -432,4 +475,6 @@ public class PlaceOrdersController implements Initializable {
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
         home.viewHome(actionEvent);
     }
+
+
 }

@@ -157,6 +157,7 @@
             </columns>
         </TableView>
         <JFXButton fx:id="btnSave" layoutX="1177.0" layoutY="648.0" onAction="#saveButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Save" textFill="#242529" />
+      <JFXButton fx:id="btnReport" layoutX="905.0" layoutY="649.0" onAction="#reportButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Report" textFill="#242529" />
         <JFXButton fx:id="btnUpdate" layoutX="1039.0" layoutY="649.0" onAction="#updateButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Update" textFill="#242529" />
     </children>
 </AnchorPane>

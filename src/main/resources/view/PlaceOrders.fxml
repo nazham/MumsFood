@@ -233,5 +233,6 @@
             <Font size="14.0" />
          </font>
       </Label>
+      <JFXButton fx:id="btnPrintBill" layoutX="580.0" layoutY="684.0" onAction="#printBillButtonOnAction" prefHeight="45.0" prefWidth="115.0" stylesheets="@../css/place-orders.css" text="Print Bill" textFill="#242529" />
     </children>
 </AnchorPane>
