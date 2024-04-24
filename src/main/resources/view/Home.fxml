@@ -155,5 +155,35 @@
             <Font size="10.0" />
          </font>
       </JFXButton>
+      <Label layoutX="273.0" layoutY="142.0" prefHeight="55.0" prefWidth="185.0" text="Today Sales" textAlignment="JUSTIFY">
+         <font>
+            <Font name="System Bold" size="32.0" />
+         </font>
+      </Label>
+      <Label fx:id="lblTodaySales" layoutX="244.0" layoutY="239.0" prefHeight="52.0" prefWidth="250.0" textAlignment="JUSTIFY" textFill="#268348">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <Label layoutX="855.0" layoutY="142.0" prefHeight="55.0" prefWidth="213.0" text="Monthly Sales" textAlignment="JUSTIFY">
+         <font>
+            <Font name="System Bold" size="32.0" />
+         </font>
+      </Label>
+      <Label fx:id="lblMonthlySales" layoutX="835.0" layoutY="239.0" prefHeight="52.0" prefWidth="250.0" textAlignment="JUSTIFY" textFill="#268348">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
+      <Label layoutX="557.0" layoutY="459.0" prefHeight="55.0" prefWidth="213.0" text="Weekly Sales" textAlignment="JUSTIFY">
+         <font>
+            <Font name="System Bold" size="32.0" />
+         </font>
+      </Label>
+      <Label fx:id="lblWeeklySales" layoutX="538.0" layoutY="565.0" prefHeight="52.0" prefWidth="250.0" textAlignment="JUSTIFY" textFill="#268348">
+         <font>
+            <Font size="22.0" />
+         </font>
+      </Label>
    </children>
 </AnchorPane>

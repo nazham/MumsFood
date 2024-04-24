@@ -1,16 +1,29 @@
 package controller;
 
 import com.jfoenix.controls.JFXButton;
+import dao.custom.OrderDAO;
+import dao.util.DAOFactory;
+import dao.util.DAOType;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
+import javafx.fxml.Initializable;
 import javafx.scene.Node;
 import javafx.scene.Scene;
+import javafx.scene.control.Label;
 import javafx.stage.Stage;
 
 import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.text.DecimalFormat;
+import java.text.DecimalFormatSymbols;
+import java.util.ResourceBundle;
 
-public class HomeController {
+public class HomeController implements Initializable {
+    public Label lblTodaySales;
+    public Label lblMonthlySales;
+    public Label lblWeeklySales;
     @FXML
     private JFXButton btnNotifications;
     @FXML
@@ -30,16 +43,37 @@ public class HomeController {
     @FXML
     private JFXButton btnDashboard;
 
-    public void notificationsButtonOnAction() {
-    }
+    private OrderDAO orderDAO = DAOFactory.getInstance().getDao(DAOType.ORDER);
+    @Override
+    public void initialize(URL url, ResourceBundle resourceBundle) {
+        // For today's sales
+        double todaySales = orderDAO.getTotalSalesOfCurrentDay();
+        String formattedTodaySales = formatSales(todaySales);
+        lblTodaySales.setText("Rs. " + formattedTodaySales);
 
-    public void logoutButtonOnAction() {
-    }
+// For weekly sales
+        try {
+            double weeklySales = orderDAO.getTotalSalesOfCurrentWeek();
+            String formattedWeeklySales = formatSales(weeklySales);
+            lblWeeklySales.setText("Rs. " + formattedWeeklySales);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
-    public void editButtonOnAction() {
-    }
+// For monthly sales
+        try {
+            double monthlySales = orderDAO.getTotalSalesOfCurrentMonth();
+            String formattedMonthlySales = formatSales(monthlySales);
+            lblMonthlySales.setText("Rs. " + formattedMonthlySales);
+        } catch (SQLException e) {
+            throw new RuntimeException(e);
+        }
 
-    public void settingsButtonOnAction() {
+
+    }
+    private String formatSales(double sales) {
+        DecimalFormat df = new DecimalFormat("#,###,##0.00"); // Format with two decimal points and comma separators
+        return df.format(sales);
     }
 
     public void viewPlaceOrder(ActionEvent actionEvent) throws IOException {
@@ -88,4 +122,17 @@ public class HomeController {
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
         viewHome(actionEvent);
     }
+
+    public void notificationsButtonOnAction() {
+    }
+
+    public void logoutButtonOnAction() {
+    }
+
+    public void editButtonOnAction() {
+    }
+
+    public void settingsButtonOnAction() {
+    }
+
 }

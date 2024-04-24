@@ -51,6 +51,7 @@ public class PlaceOrdersController implements Initializable {
     public JFXTextField txtDiscount;
     public JFXComboBox cmbOrderType;
     public JFXTextField txtTableNum;
+    public JFXButton btnPrintBill;
     @FXML
     private JFXButton btnDashboard;
     @FXML
@@ -116,6 +117,7 @@ public class PlaceOrdersController implements Initializable {
 
         btnAddToCart.setDisable(true);
         btnPlaceOrder.setDisable(true);
+        btnPrintBill.setDisable(true);
 
         TextFieldUtils.setNumericInputFilter(txtPhnNum, 10);
         TextFieldUtils.setNumericInputFilter(txtQty, 3);
@@ -306,7 +308,7 @@ public class PlaceOrdersController implements Initializable {
         }
 
         if(isSaved){
-
+            btnPrintBill.setDisable(false);
         }
 
     }
@@ -323,8 +325,7 @@ public class PlaceOrdersController implements Initializable {
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, DBConnection.getInstance().getConnection());
             JasperViewer.viewReport(jasperPrint, false);
 
-            // Show success message alert
-            showAlert(Alert.AlertType.INFORMATION, "Success", "Bill printed successfully.");
+
         } catch (JRException | ClassNotFoundException | SQLException e) {
             // Show error message alert
             showAlert(Alert.AlertType.ERROR, "Error", "Failed to print bill: " + e.getMessage());

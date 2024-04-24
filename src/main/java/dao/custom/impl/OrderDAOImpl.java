@@ -10,12 +10,17 @@ import dto.OrderDetailDTO;
 import entity.*;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.query.Query;
 
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.sql.Timestamp;
+import java.time.DayOfWeek;
+import java.time.LocalDate;
 import java.time.LocalDateTime;
+import java.time.LocalTime;
+import java.time.temporal.ChronoUnit;
 import java.util.List;
 
 public class OrderDAOImpl implements OrderDAO {
@@ -93,5 +98,86 @@ public class OrderDAOImpl implements OrderDAO {
     @Override
     public List<OrderDTO> getAll() throws SQLException, ClassNotFoundException {
         return null;
+    }
+
+    @Override
+    public double getTotalSalesOfCurrentDay() {
+        try (Session session = HibernateUtil.getSession()) {
+            LocalDateTime startDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(00, 0));
+            LocalDateTime endDateTime = LocalDateTime.of(LocalDate.now(), LocalTime.of(23, 59));
+
+            Query<Double> query = session.createQuery("SELECT SUM(o.totalAmount) FROM Orders o WHERE o.dateTime BETWEEN :startDateTime AND :endDateTime", Double.class);
+            query.setParameter("startDateTime", startDateTime);
+            query.setParameter("endDateTime", endDateTime);
+
+            Double totalSales = query.uniqueResult();
+
+            return totalSales != null ? totalSales : 0.0;
+        }
+    }
+    @Override
+    public double getTotalSalesOfCurrentWeek() throws SQLException {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = session.beginTransaction();
+        double totalSales = 0.0;
+
+        try {
+            // Calculate the start and end of the current week
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime startOfWeek = now.with(DayOfWeek.MONDAY).truncatedTo(ChronoUnit.DAYS);
+            LocalDateTime endOfWeek = startOfWeek.plusDays(7).minusNanos(1);
+
+            // Query to get total sales for the current week
+            Query<Double> query = session.createQuery("SELECT COALESCE(SUM(o.totalAmount), 0) " +
+                    "FROM Orders o " +
+                    "WHERE o.dateTime BETWEEN :startOfWeek AND :endOfWeek", Double.class);
+            query.setParameter("startOfWeek", startOfWeek);
+            query.setParameter("endOfWeek", endOfWeek);
+            totalSales = query.getSingleResult();
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+
+        return totalSales;
+    }
+
+    @Override
+    public double getTotalSalesOfCurrentMonth() throws SQLException {
+        Session session = HibernateUtil.getSession();
+        Transaction transaction = session.beginTransaction();
+        double totalSales = 0.0;
+
+        try {
+            // Calculate the start and end of the current month
+            LocalDateTime now = LocalDateTime.now();
+            LocalDateTime startOfMonth = now.withDayOfMonth(1).truncatedTo(ChronoUnit.DAYS);
+            LocalDateTime endOfMonth = startOfMonth.plusMonths(1).minusNanos(1);
+
+            // Query to get total sales for the current month
+            Query<Double> query = session.createQuery("SELECT COALESCE(SUM(o.totalAmount), 0) " +
+                    "FROM Orders o " +
+                    "WHERE o.dateTime BETWEEN :startOfMonth AND :endOfMonth", Double.class);
+            query.setParameter("startOfMonth", startOfMonth);
+            query.setParameter("endOfMonth", endOfMonth);
+            totalSales = query.getSingleResult();
+
+            transaction.commit();
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            throw e;
+        } finally {
+            session.close();
+        }
+
+        return totalSales;
     }
 }
