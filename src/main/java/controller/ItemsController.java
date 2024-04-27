@@ -8,23 +8,17 @@ import com.jfoenix.controls.JFXComboBox;
 import com.jfoenix.controls.JFXTextField;
 import dao.util.BOType;
 import dto.CategoryDTO;
-import dto.CustomerDTO;
 import dto.ItemDTO;
-import dto.tm.CustomerTM;
 import dto.tm.ItemTM;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.fxml.FXMLLoader;
 import javafx.fxml.Initializable;
-import javafx.scene.Node;
-import javafx.scene.Scene;
 import javafx.scene.control.Alert;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.PropertyValueFactory;
-import javafx.stage.Stage;
 
 import java.io.IOException;
 import java.net.URL;
@@ -32,8 +26,6 @@ import java.sql.SQLException;
 import java.sql.SQLIntegrityConstraintViolationException;
 import java.util.List;
 import java.util.ResourceBundle;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
 
 public class ItemsController implements Initializable {
     public TableColumn<?, ?> colId;
@@ -109,47 +101,7 @@ public class ItemsController implements Initializable {
 
     private final ItemBO itemBO = BOFactory.getInstance().getBo(BOType.ITEM);
 
-    public void notificationsButtonOnAction() {
-    }
-
-    public void logoutButtonOnAction() {
-    }
-
-    public void editButtonOnAction() {
-    }
-
-    public void settingsButtonOnAction() {
-    }
-
-    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/PlaceOrders.fxml"))));
-        stage.show();
-    }
-
-    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Orders.fxml"))));
-        stage.show();
-    }
-
-    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Customers.fxml"))));
-        stage.show();
-    }
-
-    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Items.fxml"))));
-        stage.show();
-    }
-
-    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
-        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
-        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Home.fxml"))));
-        stage.show();
-    }
+    private final HomeController home = new HomeController();
 
     private void loadItems() {
         ObservableList<ItemTM> tmList = FXCollections.observableArrayList();
@@ -166,9 +118,9 @@ public class ItemsController implements Initializable {
                         btn
                 );
 
-                btn.setOnAction(actionEvent -> {
-                    deleteItem(itemTm.getCode());
-                });
+                btn.setOnAction(actionEvent ->
+                    deleteItem(itemTm.getCode())
+                );
 
                 tmList.add(itemTm);
             }
@@ -208,11 +160,9 @@ public class ItemsController implements Initializable {
 
         cmbCategory.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             if (newValue != null) {
-                cmbCategory.setValue(newValue.toString());
+                cmbCategory.setValue(newValue);
             }
         });
-
-
 
         tblItems.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue != null) {
@@ -222,8 +172,20 @@ public class ItemsController implements Initializable {
             } else {
                 btnSave.setDisable(false); // Enable save button when no record is selected
             }
+        });
 
-
+        TextFieldUtils.setNumericInputFilter(txtUnitPrice, 6);
+        txtDescription.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateDescription();}
+        });
+        txtCode.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateCode();}
+        });
+        txtUnitPrice.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateUnitPrice();}
+        });
+        cmbCategory.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {isCategorySelected();}
         });
     }
 
@@ -237,63 +199,22 @@ public class ItemsController implements Initializable {
     }
 
     private boolean validateDescription() {
-        String name = txtDescription.getText();
-        if (name.trim().isEmpty()) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid Description");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter a Description");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
+        return TextFieldUtils.isEmptyField(txtDescription, "Item Description");
+    }
+    private boolean validateCode() {
+        return TextFieldUtils.isEmptyField(txtCode, "Item Code");
     }
 
     private boolean validateUnitPrice() {
-        double unitPrice;
-        try {
-            unitPrice = Double.parseDouble(txtUnitPrice.getText());
-        } catch (Exception e) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Invalid Unit Price");
-            alert.setHeaderText(null);
-            alert.setContentText("Please enter a valid unit price");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
+        return TextFieldUtils.isEmptyField(txtUnitPrice, "Item Unit Price");
     }
 
     public boolean isCategorySelected() {
-        if (cmbCategory.getValue() == null) {
-            Alert alert = new Alert(Alert.AlertType.WARNING);
-            alert.setTitle("Category Not Selected");
-            alert.setHeaderText(null);
-            alert.setContentText("Please select a category.");
-            alert.showAndWait();
-            return false;
-        }
-        return true;
+        return TextFieldUtils.isEmptyComboBox(cmbCategory, "Item Category");
     }
 
-//    private boolean validateCode() {
-//        Pattern pattern = Pattern.compile("^P[0-9]{3}$");
-//        Matcher matcher = pattern.matcher(txtCode.getText());
-//
-//        if (matcher.find() && matcher.group().equals(txtCode.getText())) {
-//            return true;
-//        }
-//
-//        Alert alert = new Alert(Alert.AlertType.WARNING);
-//        alert.setTitle("Invalid Code");
-//        alert.setHeaderText(null);
-//        alert.setContentText("Please enter a valid code");
-//        alert.showAndWait();
-//        return false;
-//    }
-
     private boolean isAnyInputDataInvalid() {
-        return !validateUnitPrice() | !validateDescription() | !isCategorySelected();
+        return validateUnitPrice() || validateDescription() || isCategorySelected() || validateCode();
     }
 
     public void deleteItem(String id) {
@@ -306,7 +227,8 @@ public class ItemsController implements Initializable {
                 new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
             }
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete item: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -399,6 +321,41 @@ public class ItemsController implements Initializable {
     }
 
     public void cmbCategoryOnAction(ActionEvent actionEvent) {
+        //yet to implement
+    }
+    public void notificationsButtonOnAction() {
+        //yet to implement
+    }
 
+    public void logoutButtonOnAction() {
+        //yet to implement
+    }
+
+    public void editButtonOnAction() {
+        //yet to implement
+    }
+
+    public void settingsButtonOnAction() {
+        //yet to implement
+    }
+
+    public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewPlaceOrder(actionEvent);
+    }
+
+    public void ordersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewOrders(actionEvent);
+    }
+
+    public void customersButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewCustomers(actionEvent);
+    }
+
+    public void itemsButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewItems(actionEvent);
+    }
+
+    public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
+        home.viewHome(actionEvent);
     }
 }

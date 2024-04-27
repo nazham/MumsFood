@@ -9,4 +9,10 @@ public interface OrderDAO extends CrudDAO<OrderDTO> {
 
     OrderDTO getLastOrder() throws SQLException, ClassNotFoundException;
     String getLastOrderId() throws SQLException, ClassNotFoundException;
+
+    double getTotalSalesOfCurrentDay();
+
+    double getTotalSalesOfCurrentWeek() throws SQLException;
+
+    double getTotalSalesOfCurrentMonth() throws SQLException;
 }

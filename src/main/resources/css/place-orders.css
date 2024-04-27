@@ -13,7 +13,7 @@
 
 
 
-#btnAddToCart, #btnPlaceOrder, #btnNewCustomer {
+#btnAddToCart, #btnPlaceOrder, #btnNewCustomer, #btnPrintBill {
     -fx-background-color: #FFF27A;
     -fx-border-radius: 14;
     -fx-background-radius: 14;
