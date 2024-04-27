@@ -39,7 +39,6 @@ import java.time.LocalDateTime;
 import java.util.*;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
-import java.util.stream.Collectors;
 
 public class PlaceOrdersController implements Initializable {
     private final HomeController home = new HomeController();
@@ -52,6 +51,7 @@ public class PlaceOrdersController implements Initializable {
     public JFXComboBox cmbOrderType;
     public JFXTextField txtTableNum;
     public JFXButton btnPrintBill;
+    public Label lblTableNum;
     @FXML
     private JFXButton btnDashboard;
     @FXML
@@ -114,6 +114,12 @@ public class PlaceOrdersController implements Initializable {
             e.printStackTrace();
         }
         loadItemCodes();
+        loadOrderTypes();
+        setOrderId();
+        txtDiscount.setText("0");
+        txtTableNum.setVisible(false);
+        lblTableNum.setVisible(false);
+
 
         btnAddToCart.setDisable(true);
         btnPlaceOrder.setDisable(true);
@@ -150,6 +156,10 @@ public class PlaceOrdersController implements Initializable {
         cmbItemCode.focusedProperty().addListener((observable, oldValue, newValue) -> {
             if (!newValue) {validateCode();}
         });
+        cmbOrderType.focusedProperty().addListener((observable, oldValue, newValue) -> {
+            if (!newValue) {validateOrderType();}
+        });
+
 
         colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("desc"));
@@ -170,8 +180,19 @@ public class PlaceOrdersController implements Initializable {
                 btnAddToCart.setDisable(false);
             }
         });
-        setOrderId();
-        txtDiscount.setText("0");
+
+        cmbOrderType.getSelectionModel().selectedItemProperty().addListener((observable, oldValue, newValue) -> {
+            if (newValue != null && newValue.equals("Dine In")) {
+                lblTableNum.setVisible(true);
+                txtTableNum.setVisible(true);
+                txtTableNum.clear();
+            }else{
+                txtTableNum.setVisible(false);
+                lblTableNum.setVisible(false);
+                txtTableNum.clear();
+            }
+        });
+
     }
 
     private boolean validateTableNum() {
@@ -181,6 +202,7 @@ public class PlaceOrdersController implements Initializable {
         return TextFieldUtils.isEmptyComboBox(cmbItemCode, "Item Code");
     }
     private boolean validateOrderType() {
+
         return TextFieldUtils.isEmptyComboBox(cmbOrderType, "Order type");
     }
     private boolean validateQty() {
@@ -205,15 +227,24 @@ public class PlaceOrdersController implements Initializable {
         return true;
     }
     private boolean isAnyInputDataInvalid() {
-        return  validatePhoneNumber() ||
+        if (validatePhoneNumber() ||
                 TextFieldUtils.isEmptyField(txtName, "Customer Name") ||
                 TextFieldUtils.isEmptyField(txtAddress, "Customer Address") ||
                 validateCode() ||
                 TextFieldUtils.isEmptyField(txtDescription, "Item Description") ||
                 TextFieldUtils.isEmptyField(txtUnitPrice, "Item Unit Price") ||
                 validateQty() ||
-                validateTableNum() ||
-                validateDiscount();
+                validateOrderType() ||
+                validateDiscount() || subTotal <= 0.00
+        ) {
+            return true;
+        }
+
+        if (cmbOrderType.getValue() != null && cmbOrderType.getValue().equals("Dine In")) {
+            return validateTableNum();
+        }
+
+        return false;
     }
 
     private ItemDTO findItemByCode(String code) {
@@ -255,6 +286,10 @@ public class PlaceOrdersController implements Initializable {
 
         cmbItemCode.setItems(list);
     }
+    private void loadOrderTypes() {
+        ObservableList<String> orderTypes = FXCollections.observableArrayList("Dine In", "Take Away", "Delivery");
+        cmbOrderType.setItems(orderTypes);
+    }
 
     private void setOrderId() {
         try {
@@ -273,6 +308,7 @@ public class PlaceOrdersController implements Initializable {
     public void placeOrderButtonOnAction() {
         if (isAnyInputDataInvalid()) {
             System.out.println("place order rejected");
+            System.out.println("sub Total: " + subTotal);
             return;
         }
         List<OrderDetailDTO> list = new ArrayList<>();
@@ -290,7 +326,7 @@ public class PlaceOrdersController implements Initializable {
                 LocalDateTime.now(),
                 customer.getId(),
                 Double.parseDouble(lblTotal.getText()),
-                "Dine-In",
+                cmbOrderType.getValue().toString(),
                 "1",
                 list
         );
@@ -299,11 +335,17 @@ public class PlaceOrdersController implements Initializable {
             isSaved = orderDAO.save(dto);
             if (isSaved) {
                 new Alert(Alert.AlertType.INFORMATION, "Order saved!").show();
+                btnAddToCart.setDisable(true);
+                btnPlaceOrder.setDisable(true);
 
-            } else {
-                new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
+                cmbItemCode.setDisable(true);
+                txtPhnNum.setDisable(true);
+                tblOrders.setDisable(true);
+                txtDiscount.setDisable(true);
+                cmbOrderType.setDisable(true);
             }
         } catch (SQLException | ClassNotFoundException e) {
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to save order: " + e.getMessage());
             throw new RuntimeException(e);
         }
 
@@ -328,20 +370,20 @@ public class PlaceOrdersController implements Initializable {
 
         } catch (JRException | ClassNotFoundException | SQLException e) {
             // Show error message alert
-            showAlert(Alert.AlertType.ERROR, "Error", "Failed to print bill: " + e.getMessage());
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to print bill: " + e.getMessage());
             throw new RuntimeException(e);
         }
         setOrderId();
-        subTotal=0.00;
         clearFields();
-    }
+        btnPrintBill.setDisable(true);
+        cmbItemCode.setDisable(false);
+        cmbOrderType.setDisable(false);
+        txtPhnNum.setDisable(false);
+        tblOrders.setDisable(false);
+        btnNewCustomer.setDisable(false);
+        txtDiscount.setDisable(false);
+        subTotal=0.00;
 
-    private void showAlert(Alert.AlertType alertType, String title, String message) {
-        Alert alert = new Alert(alertType);
-        alert.setTitle(title);
-        alert.setHeaderText(null);
-        alert.setContentText(message);
-        alert.showAndWait();
     }
     public void addToCartButtonOnAction() throws SQLException, ClassNotFoundException {
         if(validateQty() || validateDiscount()){
@@ -351,15 +393,16 @@ public class PlaceOrdersController implements Initializable {
         searchPhoneNumber();
         btnAddToCart.setDisable(false);
         btnPlaceOrders.setDisable(false);
-        JFXButton btn = new JFXButton("Delete");
+        btnNewCustomer.setDisable(true);
+        JFXButton btnDelete = new JFXButton("Delete");
         OrderTM orderTM = new OrderTM(
                 cmbItemCode.getValue().toString(),
                 txtDescription.getText(),
                 Integer.parseInt(txtQty.getText()),
                 Double.parseDouble(txtUnitPrice.getText()) * Integer.parseInt(txtQty.getText()),
-                btn
+                btnDelete
         );
-        btn.setOnAction(actionEvent -> {
+        btnDelete.setOnAction(actionEvent -> {
             tmList.remove(orderTM);
             subTotal -= orderTM.getAmount();
             lblSubTotal.setText(String.format("%.2f", subTotal));
@@ -390,6 +433,7 @@ public class PlaceOrdersController implements Initializable {
         btnPlaceOrder.setDisable(false);
     }
     private void clearFields() {
+
         txtName.clear();
         txtPhnNum.clear();
         txtAddress.clear();
@@ -400,7 +444,8 @@ public class PlaceOrdersController implements Initializable {
         txtQty.clear();
 
         cmbOrderType.getSelectionModel().clearSelection();
-        txtTableNum.clear();
+        txtTableNum.setVisible(false);
+        lblTableNum.setVisible(false);
         setOrderId();
 
         tmList.clear();

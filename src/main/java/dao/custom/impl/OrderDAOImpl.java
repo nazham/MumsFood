@@ -1,5 +1,6 @@
 package dao.custom.impl;
 
+import controller.TextFieldUtils;
 import dao.custom.OrderDAO;
 import dao.custom.OrderDetailDAO;
 import dao.util.CrudUtil;
@@ -8,10 +9,13 @@ import db.DBConnection;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
 import entity.*;
+import javafx.scene.control.Alert;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
+import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
 
+import javax.persistence.PersistenceException;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
@@ -59,30 +63,56 @@ public class OrderDAOImpl implements OrderDAO {
     public boolean save(OrderDTO dto) throws SQLException, ClassNotFoundException {
         Session session = HibernateUtil.getSession();
         Transaction transaction = session.beginTransaction();
-        Orders orders = new Orders(
-                dto.getOrderId(),
-                dto.getDateTime(),
-                dto.getOrderType(),
-                dto.getTotalAmount()
-        );
-        orders.setCustomer(session.find(Customer.class,dto.getCusId()));
-        session.save(orders);
-
-        List<OrderDetailDTO> list = dto.getList(); //dto type
-
-        for (OrderDetailDTO detailDto:list) {
-            OrderDetail orderDetail = new OrderDetail(
-                    new OrderDetailKey(detailDto.getOrderId(), detailDto.getItemId()),
-                    session.find(Item.class, detailDto.getItemId()),
-                    orders,
-                    detailDto.getQty()
+        try {
+            Orders orders = new Orders(
+                    dto.getOrderId(),
+                    dto.getDateTime(),
+                    dto.getOrderType(),
+                    dto.getTotalAmount()
             );
-            session.save(orderDetail);
-        }
+            orders.setCustomer(session.find(Customer.class,dto.getCusId()));
+            session.save(orders);
 
-        transaction.commit();
-        session.close();
-        return true;
+            List<OrderDetailDTO> list = dto.getList(); //dto type
+
+            for (OrderDetailDTO detailDto:list) {
+                OrderDetail orderDetail = new OrderDetail(
+                        new OrderDetailKey(detailDto.getOrderId(), detailDto.getItemId()),
+                        session.find(Item.class, detailDto.getItemId()),
+                        orders,
+                        detailDto.getQty()
+                );
+                session.save(orderDetail);
+            }
+
+            transaction.commit();
+            session.close();
+            return true;
+        } catch (ConstraintViolationException ex) {
+            // Log specific message for ConstraintViolationException
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Constraint violation error: " + ex.getMessage());
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            session.close();
+            return false;
+        } catch (PersistenceException ex) {
+            // Log specific message for PersistenceException
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Persistence error: " + ex.getMessage());
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            session.close();
+            return false;
+        } catch (Exception ex) {
+            // Log generic message for any other exception
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Error: " + ex.getMessage());
+            if (transaction.isActive()) {
+                transaction.rollback();
+            }
+            session.close();
+            return false;
+        }
     }
 
     @Override

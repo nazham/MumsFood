@@ -1,19 +1,13 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.JFXButton?>
-<?import com.jfoenix.controls.JFXComboBox?>
-<?import com.jfoenix.controls.JFXTextField?>
-<?import java.lang.String?>
-<?import javafx.scene.control.Label?>
-<?import javafx.scene.control.TableColumn?>
-<?import javafx.scene.control.TableView?>
-<?import javafx.scene.image.Image?>
-<?import javafx.scene.image.ImageView?>
+<?import com.jfoenix.controls.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.image.*?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Line?>
-<?import javafx.scene.text.Font?>
-
+<?import javafx.scene.text.*?>
+<?import java.lang.String?>
 <AnchorPane maxHeight="744.0" maxWidth="1133.0" minHeight="744.0" minWidth="1133.0" prefHeight="744.0" prefWidth="1133.0" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.ItemsController">
     <children>
         <Line endX="187.0" startX="187.0" startY="744.0" stroke="#dbdbdb33" />

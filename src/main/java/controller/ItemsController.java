@@ -198,7 +198,6 @@ public class ItemsController implements Initializable {
         }
     }
 
-
     private boolean validateDescription() {
         return TextFieldUtils.isEmptyField(txtDescription, "Item Description");
     }
@@ -228,7 +227,8 @@ public class ItemsController implements Initializable {
                 new Alert(Alert.AlertType.ERROR, "Something went wrong!").show();
             }
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete item: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -321,18 +321,22 @@ public class ItemsController implements Initializable {
     }
 
     public void cmbCategoryOnAction(ActionEvent actionEvent) {
-
+        //yet to implement
     }
     public void notificationsButtonOnAction() {
+        //yet to implement
     }
 
     public void logoutButtonOnAction() {
+        //yet to implement
     }
 
     public void editButtonOnAction() {
+        //yet to implement
     }
 
     public void settingsButtonOnAction() {
+        //yet to implement
     }
 
     public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {

@@ -4,7 +4,6 @@ import dao.custom.CustomerDAO;
 import dao.util.HibernateUtil;
 import db.DBConnection;
 import dto.CustomerDTO;
-import dto.ItemDTO;
 import entity.Customer;
 import org.hibernate.Session;
 import org.hibernate.Transaction;

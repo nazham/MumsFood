@@ -168,7 +168,8 @@ public class CustomersController implements Initializable {
         } catch (NumberFormatException e) {
             new Alert(Alert.AlertType.ERROR, "Invalid customer ID format").show();
         } catch (ClassNotFoundException | SQLException e) {
-            e.printStackTrace();
+            TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to delete customer: " + e.getMessage());
+            throw new RuntimeException(e);
         }
     }
 
@@ -281,15 +282,19 @@ public class CustomersController implements Initializable {
     }
 
     public void notificationsButtonOnAction() {
+        //yet to implement
     }
 
     public void logoutButtonOnAction() {
+        //yet to implement
     }
 
     public void editButtonOnAction() {
+        //yet to implement
     }
 
     public void settingsButtonOnAction() {
+        //yet to implement
     }
 
     public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
