@@ -116,7 +116,7 @@ public class PlaceOrdersController implements Initializable {
         }
         loadItemCodes();
         loadOrderTypes();
-        setOrderId();
+
         txtDiscount.setText("0");
         txtTableNum.setVisible(false);
         lblTableNum.setVisible(false);
@@ -299,14 +299,14 @@ public class PlaceOrdersController implements Initializable {
         cmbOrderType.setItems(orderTypes);
     }
 
-    private void setOrderId() {
+    private String setOrderId() {
         try {
             String lastOrderId = orderDAO.getLastOrderId();
             if (lastOrderId == null || lastOrderId.isEmpty()) {
-                lblOrderId.setText("ODR#00001");
+                return "ODR#00001";
             } else {
                 int num = Integer.parseInt(lastOrderId.substring(4)) + 1; // Extract the number part and increment
-                lblOrderId.setText("ODR#" + String.format("%05d", num));
+                return "ODR#" + String.format("%05d", num);
             }
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
@@ -318,9 +318,10 @@ public class PlaceOrdersController implements Initializable {
             return;
         }
         List<OrderDetailDTO> list = new ArrayList<>();
+        String oderId = setOrderId();
         for (OrderTM orderTM : tmList) {
             list.add(new OrderDetailDTO(
-                    lblOrderId.getText(),
+                    oderId,
                     Objects.requireNonNull(findItemByCode(orderTM.getCode())).getId(),
                     orderTM.getQty(),
                     orderTM.getAmount() / orderTM.getQty()
@@ -328,7 +329,7 @@ public class PlaceOrdersController implements Initializable {
         }
 
         OrderDTO dto = new OrderDTO(
-                lblOrderId.getText(),
+                oderId,
                 LocalDateTime.now(),
                 customer.getId(),
                 Double.parseDouble(lblTotal.getText()),
@@ -343,7 +344,7 @@ public class PlaceOrdersController implements Initializable {
                 new Alert(Alert.AlertType.INFORMATION, "Order saved!").show();
                 btnAddToCart.setDisable(true);
                 btnPlaceOrder.setDisable(true);
-
+                lblOrderId.setText(oderId);
                 cmbItemCode.setDisable(true);
                 txtPhnNum.setDisable(true);
                 tblOrders.setDisable(true);
@@ -379,7 +380,7 @@ public class PlaceOrdersController implements Initializable {
             TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to print bill: " + e.getMessage());
             throw new RuntimeException(e);
         }
-        setOrderId();
+        lblOrderId.setText("");
         clearFields();
         btnPrintBill.setDisable(true);
         cmbItemCode.setDisable(false);
@@ -453,7 +454,6 @@ public class PlaceOrdersController implements Initializable {
         cmbOrderType.getSelectionModel().clearSelection();
         txtTableNum.setVisible(false);
         lblTableNum.setVisible(false);
-        setOrderId();
 
         tmList.clear();
         tblOrders.refresh();
