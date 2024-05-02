@@ -42,6 +42,10 @@ import java.util.regex.Pattern;
 
 public class PlaceOrdersController implements Initializable {
     private final HomeController home = new HomeController();
+    private final ItemBO itemBO = BOFactory.getInstance().getBo(BOType.ITEM);
+    private final CustomerDAO customerDAO = DAOFactory.getInstance().getDao(DAOType.CUSTOMER);
+    private final ObservableList<OrderTM> tmList = FXCollections.observableArrayList();
+    private final OrderDAO orderDAO = new OrderDAOImpl();
     public JFXButton btnNewCustomer;
     public JFXTextField txtPhnNum;
     public JFXTextField txtAddress;
@@ -52,6 +56,7 @@ public class PlaceOrdersController implements Initializable {
     public JFXTextField txtTableNum;
     public JFXButton btnPrintBill;
     public Label lblTableNum;
+    public JFXButton btnCategories;
     @FXML
     private JFXButton btnDashboard;
     @FXML
@@ -96,11 +101,7 @@ public class PlaceOrdersController implements Initializable {
     private Label lblOrderId;
     @FXML
     private Label lblTotal;
-    private final ItemBO itemBO = BOFactory.getInstance().getBo(BOType.ITEM);
-    private final CustomerDAO customerDAO = DAOFactory.getInstance().getDao(DAOType.CUSTOMER);
     private List<ItemDTO> items;
-    private final ObservableList<OrderTM> tmList = FXCollections.observableArrayList();
-    private final OrderDAO orderDAO = new OrderDAOImpl();
     private CustomerDTO customer;
     private double subTotal = 0.0;
 
@@ -119,7 +120,6 @@ public class PlaceOrdersController implements Initializable {
         txtDiscount.setText("0");
         txtTableNum.setVisible(false);
         lblTableNum.setVisible(false);
-
 
         btnAddToCart.setDisable(true);
         btnPlaceOrder.setDisable(true);
@@ -148,25 +148,31 @@ public class PlaceOrdersController implements Initializable {
         });
 
         txtQty.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {validateQty();}
+            if (!newValue) {
+                validateQty();
+            }
         });
         txtDiscount.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {validateDiscount();}
+            if (!newValue) {
+                validateDiscount();
+            }
         });
         cmbItemCode.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {validateCode();}
+            if (!newValue) {
+                validateCode();
+            }
         });
         cmbOrderType.focusedProperty().addListener((observable, oldValue, newValue) -> {
-            if (!newValue) {validateOrderType();}
+            if (!newValue) {
+                validateOrderType();
+            }
         });
-
 
         colCode.setCellValueFactory(new PropertyValueFactory<>("code"));
         colDescription.setCellValueFactory(new PropertyValueFactory<>("desc"));
         colQty.setCellValueFactory(new PropertyValueFactory<>("qty"));
         colAmount.setCellValueFactory(new PropertyValueFactory<>("amount"));
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
-
 
         cmbItemCode.getSelectionModel().selectedItemProperty().addListener((observableValue, o, newValue) -> {
             ItemDTO matchedItem = null;
@@ -186,28 +192,28 @@ public class PlaceOrdersController implements Initializable {
                 lblTableNum.setVisible(true);
                 txtTableNum.setVisible(true);
                 txtTableNum.clear();
-            }else{
+            } else {
                 txtTableNum.setVisible(false);
                 lblTableNum.setVisible(false);
                 txtTableNum.clear();
             }
         });
-
     }
 
     private boolean validateTableNum() {
         return TextFieldUtils.isEmptyOrNonPositiveInteger(txtTableNum, "Table Number");
     }
+
     private boolean validateCode() {
         return TextFieldUtils.isEmptyComboBox(cmbItemCode, "Item Code");
     }
-    private boolean validateOrderType() {
 
-        return TextFieldUtils.isEmptyComboBox(cmbOrderType, "Order type");
-    }
+    private boolean validateOrderType() {return TextFieldUtils.isEmptyComboBox(cmbOrderType, "Order type");}
+
     private boolean validateQty() {
         return TextFieldUtils.isEmptyOrNonPositiveInteger(txtQty, "Item Quantity");
     }
+
     private boolean validateDiscount() {
         return TextFieldUtils.isEmptyField(txtDiscount, "Order Discount");
     }
@@ -226,6 +232,7 @@ public class PlaceOrdersController implements Initializable {
         alert.showAndWait();
         return true;
     }
+
     private boolean isAnyInputDataInvalid() {
         if (validatePhoneNumber() ||
                 TextFieldUtils.isEmptyField(txtName, "Customer Name") ||
@@ -243,7 +250,6 @@ public class PlaceOrdersController implements Initializable {
         if (cmbOrderType.getValue() != null && cmbOrderType.getValue().equals("Dine In")) {
             return validateTableNum();
         }
-
         return false;
     }
 
@@ -257,9 +263,11 @@ public class PlaceOrdersController implements Initializable {
     }
 
     private void searchPhoneNumber() throws SQLException, ClassNotFoundException {
-        if (validatePhoneNumber()){return;}
+        if (validatePhoneNumber()) {
+            return;
+        }
         String phoneNumber = txtPhnNum.getText();
-        try{
+        try {
             customer = customerDAO.searchCustomer(phoneNumber);
             if (customer != null) {
                 txtName.setText(customer.getName());
@@ -283,9 +291,9 @@ public class PlaceOrdersController implements Initializable {
         for (ItemDTO itemDTO : items) {
             list.add(itemDTO.getCode());
         }
-
         cmbItemCode.setItems(list);
     }
+
     private void loadOrderTypes() {
         ObservableList<String> orderTypes = FXCollections.observableArrayList("Dine In", "Take Away", "Delivery");
         cmbOrderType.setItems(orderTypes);
@@ -307,8 +315,6 @@ public class PlaceOrdersController implements Initializable {
 
     public void placeOrderButtonOnAction() {
         if (isAnyInputDataInvalid()) {
-            System.out.println("place order rejected");
-            System.out.println("sub Total: " + subTotal);
             return;
         }
         List<OrderDetailDTO> list = new ArrayList<>();
@@ -349,7 +355,7 @@ public class PlaceOrdersController implements Initializable {
             throw new RuntimeException(e);
         }
 
-        if(isSaved){
+        if (isSaved) {
             btnPrintBill.setDisable(false);
         }
 
@@ -382,12 +388,12 @@ public class PlaceOrdersController implements Initializable {
         tblOrders.setDisable(false);
         btnNewCustomer.setDisable(false);
         txtDiscount.setDisable(false);
-        subTotal=0.00;
+        subTotal = 0.00;
 
     }
+
     public void addToCartButtonOnAction() throws SQLException, ClassNotFoundException {
-        if(validateQty() || validateDiscount()){
-            System.out.println("add to cart rejected");
+        if (validateQty() || validateDiscount()) {
             return;
         }
         searchPhoneNumber();
@@ -432,6 +438,7 @@ public class PlaceOrdersController implements Initializable {
         setDiscount();
         btnPlaceOrder.setDisable(false);
     }
+
     private void clearFields() {
 
         txtName.clear();
@@ -456,13 +463,15 @@ public class PlaceOrdersController implements Initializable {
         lblSubTotal.setText("0.00");
         lblDiscount.setText("0.00");
     }
-    public void txtPhnNumOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
 
+    public void txtPhnNumOnAction(ActionEvent actionEvent) throws SQLException, ClassNotFoundException {
+        //to remove
     }
 
     public void newCustomerOnAction(ActionEvent actionEvent) throws IOException {
         home.viewCustomers(actionEvent);
     }
+
     public void onNewCustomerAdded(CustomerDTO customer) {
         CustomerDTO customerDTO = new CustomerDTO(
                 customer.getName(),
@@ -472,8 +481,8 @@ public class PlaceOrdersController implements Initializable {
         txtPhnNum.setText(customerDTO.getPhoneNumber());
         txtName.setText(customerDTO.getName());
         txtAddress.setText(customerDTO.getAddress());
-
     }
+
     private void setDiscount() {
         double total = subTotal;
         double discount = Double.parseDouble(txtDiscount.getText());
@@ -486,20 +495,25 @@ public class PlaceOrdersController implements Initializable {
         total -= discount;
         lblTotal.setText(String.format("%.2f", total));
     }
+
     public void txtDiscountOnAction(ActionEvent actionEvent) {
         setDiscount();
     }
 
     public void notificationsButtonOnAction() {
+        //yet to implement
     }
 
     public void logoutButtonOnAction() {
+        //yet to implement
     }
 
     public void editButtonOnAction() {
+        //yet to implement
     }
 
     public void settingsButtonOnAction() {
+        //yet to implement
     }
 
     public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
@@ -523,4 +537,6 @@ public class PlaceOrdersController implements Initializable {
     }
 
 
+    public void categoriesButtonOnAction(ActionEvent actionEvent) throws IOException { home.viewCategories(actionEvent);
+    }
 }

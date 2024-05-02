@@ -22,6 +22,7 @@ import java.util.List;
 import java.util.ResourceBundle;
 
 public class OrdersController implements Initializable {
+    public JFXButton btnCategories;
     @FXML
     private JFXButton btnDashboard;
 
@@ -129,5 +130,8 @@ public class OrdersController implements Initializable {
         } catch (SQLException | ClassNotFoundException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    public void categoriesButtonOnAction(ActionEvent actionEvent) throws IOException { home.viewCategories(actionEvent);
     }
 }
