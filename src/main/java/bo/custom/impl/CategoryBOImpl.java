@@ -12,11 +12,11 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class CategoryBOImpl implements CategoryBO {
-    private CategoryDAO customerDao = DAOFactory.getInstance().getDao(DAOType.CATEGORY);
+    private final CategoryDAO categoryDAO = DAOFactory.getInstance().getDao(DAOType.CATEGORY);
 
     @Override
     public boolean saveCategory(CategoryDTO dto) throws SQLException, ClassNotFoundException {
-        return customerDao.save(new Category(
+        return categoryDAO.save(new Category(
                 dto.getId(),
                 dto.getCategoryName()
         ));
@@ -24,7 +24,7 @@ public class CategoryBOImpl implements CategoryBO {
 
     @Override
     public boolean updateCategory(CategoryDTO dto) throws SQLException, ClassNotFoundException {
-        return customerDao.update(new Category(
+        return categoryDAO.update(new Category(
                 dto.getId(),
                 dto.getCategoryName()
         ));
@@ -32,12 +32,12 @@ public class CategoryBOImpl implements CategoryBO {
 
     @Override
     public boolean deleteCategory(String id) throws SQLException, ClassNotFoundException {
-        return customerDao.delete(id);
+        return categoryDAO.delete(id);
     }
 
     @Override
     public List<CategoryDTO> allCategory() throws SQLException, ClassNotFoundException {
-        List<Category> entityList = customerDao.getAll();
+        List<Category> entityList = categoryDAO.getAll();
         List<CategoryDTO> list = new ArrayList<>();
         for (Category category:entityList) {
             list.add(new CategoryDTO(
@@ -47,4 +47,5 @@ public class CategoryBOImpl implements CategoryBO {
         }
         return list;
     }
+
 }

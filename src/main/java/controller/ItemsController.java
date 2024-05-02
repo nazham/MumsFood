@@ -29,6 +29,7 @@ import java.util.ResourceBundle;
 
 public class ItemsController implements Initializable {
     public TableColumn<?, ?> colId;
+    public JFXButton btnCategories;
     @FXML
     private JFXButton btnDashboard;
 
@@ -357,5 +358,8 @@ public class ItemsController implements Initializable {
 
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
         home.viewHome(actionEvent);
+    }
+
+    public void categoriesButtonOnAction(ActionEvent actionEvent) throws IOException { home.viewCategories(actionEvent);
     }
 }

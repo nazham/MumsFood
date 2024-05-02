@@ -1,10 +1,11 @@
 package dao.custom.impl;
 
+import controller.TextFieldUtils;
 import dao.custom.CategoryDAO;
 import dao.util.HibernateUtil;
 import dto.CategoryDTO;
 import entity.Category;
-import entity.Customer;
+import javafx.scene.control.Alert;
 import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.query.Query;
@@ -47,13 +48,34 @@ public class CategoryDAOImpl implements CategoryDAO {
     }
 
     @Override
-    public boolean delete(String value) throws SQLException, ClassNotFoundException {
+    public boolean delete(String categoryId) throws SQLException, ClassNotFoundException {
         Session session = HibernateUtil.getSession();
         Transaction transaction = session.beginTransaction();
-        session.delete(session.find(Customer.class,Integer.parseInt(value)));
-        transaction.commit();
-        session.close();
-        return true;
+        try {
+            Category category = session.find(Category.class, categoryId);
+            if (category != null) {
+                // Check if there are any associated items
+                if (!isCategoryEmpty(categoryId)) {
+                    // If there are associated items, do not delete the category
+                    TextFieldUtils.showAlert(Alert.AlertType.ERROR,"Error", "Cannot delete category. Associated items exist.");
+                    return false;
+                }
+                session.delete(category);
+                transaction.commit();
+                return true;
+            } else {
+                System.out.println("Category not found.");
+                return false;
+            }
+        } catch (Exception e) {
+            if (transaction != null) {
+                transaction.rollback();
+            }
+            e.printStackTrace();
+            return false;
+        } finally {
+            session.close();
+        }
     }
 
     @Override
@@ -68,5 +90,18 @@ public class CategoryDAOImpl implements CategoryDAO {
     @Override
     public CategoryDTO searchCategory() {
         return null;
+    }
+
+    // Method to check if a category has associated items
+    private boolean isCategoryEmpty(String categoryId) {
+        try (Session session = HibernateUtil.getSession()) {
+            Query<Long> query = session.createQuery("SELECT COUNT(*) FROM Item WHERE category.categoryId = :categoryId", Long.class);
+            query.setParameter("categoryId", categoryId);
+            Long count = query.uniqueResult();
+            return count == 0;
+        } catch (Exception e) {
+            e.printStackTrace();
+            return false;
+        }
     }
 }

@@ -23,6 +23,7 @@ public class HomeController implements Initializable {
     public Label lblTodaySales;
     public Label lblMonthlySales;
     public Label lblWeeklySales;
+    public JFXButton btnCategories;
     @FXML
     private JFXButton btnNotifications;
     @FXML
@@ -101,6 +102,11 @@ public class HomeController implements Initializable {
         stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Home.fxml"))));
         stage.show();
     }
+    public void viewCategories(ActionEvent actionEvent) throws IOException {
+        Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+        stage.setScene(new Scene(FXMLLoader.load(getClass().getResource("/view/Categories.fxml"))));
+        stage.show();
+    }
 
     public void placeOrdersButtonOnAction(ActionEvent actionEvent) throws IOException {
         viewPlaceOrder(actionEvent);
@@ -121,6 +127,9 @@ public class HomeController implements Initializable {
     public void dashboardButtonOnAction(ActionEvent actionEvent) throws IOException {
         viewHome(actionEvent);
     }
+    public void categoriesButtonOnAction(ActionEvent actionEvent) throws IOException {
+        viewCategories(actionEvent);
+    }
 
     public void notificationsButtonOnAction() {
     }
@@ -133,5 +142,6 @@ public class HomeController implements Initializable {
 
     public void settingsButtonOnAction() {
     }
+
 
 }

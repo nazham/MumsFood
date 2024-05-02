@@ -11,5 +11,4 @@ public interface CategoryBO extends SuperBO {
     boolean updateCategory(CategoryDTO dto) throws SQLException, ClassNotFoundException;
     boolean deleteCategory(String id) throws SQLException, ClassNotFoundException;
     List<CategoryDTO> allCategory() throws SQLException, ClassNotFoundException;
-
 }

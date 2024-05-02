@@ -39,6 +39,7 @@ import java.util.regex.Pattern;
 public class CustomersController implements Initializable {
     private final CustomerBO customerBO = BOFactory.getInstance().getBo(BOType.CUSTOMER);
     private final HomeController home = new HomeController();
+    public JFXButton btnCategories;
     @FXML
     private JFXButton btnDashboard;
     @FXML
@@ -321,4 +322,6 @@ public class CustomersController implements Initializable {
         saveButtonOnAction(actionEvent);
     }
 
+    public void categoriesButtonOnAction(ActionEvent actionEvent) throws IOException {home.viewCategories(actionEvent);
+    }
 }
