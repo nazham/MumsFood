@@ -40,6 +40,8 @@ public class CustomersController implements Initializable {
     private final CustomerBO customerBO = BOFactory.getInstance().getBo(BOType.CUSTOMER);
     private final HomeController home = new HomeController();
     public JFXButton btnCategories;
+    public JFXButton btnSetCustomer;
+    public JFXButton btnReport;
     @FXML
     private JFXButton btnDashboard;
     @FXML
@@ -99,12 +101,15 @@ public class CustomersController implements Initializable {
         colOption.setCellValueFactory(new PropertyValueFactory<>("btn"));
         loadCustomers();
         btnUpdate.setDisable(true);
+        btnSetCustomer.setDisable(true);
+        btnReport.setDisable(true);
 
         tblCustomers.getSelectionModel().selectedItemProperty().addListener((observableValue, oldValue, newValue) -> {
             if (newValue != null) {
                 setData(newValue);
                 btnUpdate.setDisable(false);
                 btnSave.setDisable(true); // Disable save button when a record is selected
+                btnSetCustomer.setDisable(false);
             } else {
                 btnSave.setDisable(false); // Enable save button when no record is selected
                 clearFields();
@@ -218,6 +223,24 @@ public class CustomersController implements Initializable {
             placeOrderController.onNewCustomerAdded(customerDto);
         }
     }
+    public void setCustomerButtonOnAction(ActionEvent actionEvent) throws IOException {
+        if (isAnyInputDataInvalid()) {
+
+            FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PlaceOrders.fxml"));
+            Parent root = loader.load();
+            placeOrderController = loader.getController();
+
+            // Pass the PlaceOrderController instance to CustomerFormController
+            FXMLLoader customerFormLoader = new FXMLLoader(getClass().getResource("/view/Customers.fxml"));
+            customerFormLoader.load();
+            CustomersController customerFormController = customerFormLoader.getController();
+            customerFormController.setPlaceOrderController(placeOrderController);
+            Stage stage = (Stage) ((Node) actionEvent.getSource()).getScene().getWindow();
+            stage.setScene(new Scene(root));
+            stage.show();
+            placeOrderController.onNewCustomerAdded(new CustomerDTO(txtName.getText(), txtPhnNum.getText(), txtAddress.getText()));
+        }
+    }
 
     private void clearFields() {
         tblCustomers.refresh();
@@ -324,4 +347,6 @@ public class CustomersController implements Initializable {
 
     public void categoriesButtonOnAction(ActionEvent actionEvent) throws IOException {home.viewCategories(actionEvent);
     }
+
+
 }

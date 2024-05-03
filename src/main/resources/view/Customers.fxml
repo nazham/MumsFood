@@ -1,14 +1,19 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import com.jfoenix.controls.*?>
-<?import javafx.scene.control.*?>
-<?import javafx.scene.image.*?>
+<?import com.jfoenix.controls.JFXButton?>
+<?import com.jfoenix.controls.JFXTextField?>
+<?import java.lang.String?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.image.Image?>
+<?import javafx.scene.image.ImageView?>
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.shape.Circle?>
 <?import javafx.scene.shape.Line?>
-<?import javafx.scene.text.*?>
-<?import java.lang.String?>
-<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="728.0" prefWidth="1366.0" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CustomersController">
+<?import javafx.scene.text.Font?>
+
+<AnchorPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="728.0" prefWidth="1231.0" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.CustomersController">
     <children>
         <Line endX="187.0" startX="187.0" startY="744.0" stroke="#dbdbdb33" />
         <ImageView fitHeight="70.0" fitWidth="162.0" layoutX="23.0" layoutY="17.0" pickOnBounds="true" preserveRatio="true">
@@ -109,8 +114,8 @@
                 <Font size="24.0" />
             </font>
         </Label>
-        <JFXButton fx:id="btnLogout" layoutX="929.0" layoutY="24.0" onAction="#logoutButtonOnAction" prefHeight="45.0" prefWidth="101.0" text="Logout" textFill="#242529" />
-        <JFXButton fx:id="btnNotifications" layoutX="1049.0" layoutY="25.0" onAction="#notificationsButtonOnAction" prefHeight="44.0" prefWidth="45.0" text="">
+        <JFXButton fx:id="btnLogout" layoutX="1010.0" layoutY="24.0" onAction="#logoutButtonOnAction" prefHeight="45.0" prefWidth="101.0" text="Logout" textFill="#242529" />
+        <JFXButton fx:id="btnNotifications" layoutX="1130.0" layoutY="25.0" onAction="#notificationsButtonOnAction" prefHeight="44.0" prefWidth="45.0" text="">
             <graphic>
                 <ImageView fitHeight="16.0" fitWidth="17.0" pickOnBounds="true" preserveRatio="true">
                     <image>
@@ -152,19 +157,20 @@
                 <Font size="18.0" />
             </font>
         </Label>
-        <JFXTextField fx:id="txtAddress" focusColor="#405aa800" layoutX="756.0" layoutY="122.0" onAction="#txtAddressOnAction" prefHeight="48.0" prefWidth="563.0" promptText="Address Line 1" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
+        <JFXTextField fx:id="txtAddress" focusColor="#405aa800" layoutX="756.0" layoutY="122.0" onAction="#txtAddressOnAction" prefHeight="48.0" prefWidth="441.0" promptText="Address Line 1" styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
         <JFXTextField fx:id="txtSearch" focusColor="#405aa800" layoutX="236.0" layoutY="198.0" prefHeight="48.0" prefWidth="286.0" promptText="Search..." styleClass="txt-input" stylesheets="@../css/items.css" unFocusColor="#4d4d4d00" />
-        <TableView fx:id="tblCustomers" layoutX="230.0" layoutY="270.0" prefHeight="360.0" prefWidth="1091.0">
+        <TableView fx:id="tblCustomers" layoutX="230.0" layoutY="270.0" prefHeight="360.0" prefWidth="969.0">
             <columns>
-                <TableColumn fx:id="colId" prefWidth="66.66668701171875" text="ID" />
-                <TableColumn fx:id="colName" minWidth="0.0" prefWidth="224.66668701171875" text="Name" />
-                <TableColumn fx:id="colPhnNum" prefWidth="234.33331298828125" text="Phone Number" />
-                <TableColumn fx:id="colAddress" prefWidth="458.0" text="Address" />
-                <TableColumn fx:id="colOption" prefWidth="106.66668701171875" text="Option" />
+                <TableColumn fx:id="colId" prefWidth="43.0" text="ID" />
+                <TableColumn fx:id="colName" minWidth="0.0" prefWidth="219.0" text="Name" />
+                <TableColumn fx:id="colPhnNum" prefWidth="234.0" text="Phone Number" />
+                <TableColumn fx:id="colAddress" prefWidth="357.0" text="Address" />
+                <TableColumn fx:id="colOption" prefWidth="114.0" text="Option" />
             </columns>
         </TableView>
-        <JFXButton fx:id="btnSave" layoutX="1177.0" layoutY="648.0" onAction="#saveButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Save" textFill="#242529" />
-      <JFXButton fx:id="btnReport" layoutX="905.0" layoutY="649.0" onAction="#reportButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Report" textFill="#242529" />
-        <JFXButton fx:id="btnUpdate" layoutX="1039.0" layoutY="649.0" onAction="#updateButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Update" textFill="#242529" />
+        <JFXButton fx:id="btnSave" layoutX="1089.0" layoutY="648.0" onAction="#saveButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Save" textFill="#242529" />
+      <JFXButton fx:id="btnReport" layoutX="825.0" layoutY="649.0" onAction="#reportButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Report" textFill="#242529" />
+        <JFXButton fx:id="btnUpdate" layoutX="957.0" layoutY="649.0" onAction="#updateButtonOnAction" prefHeight="45.0" prefWidth="101.0" stylesheets="@../css/items.css" text="Update" textFill="#242529" />
+      <JFXButton fx:id="btnSetCustomer" layoutX="679.0" layoutY="649.0" onAction="#setCustomerButtonOnAction" prefHeight="45.0" prefWidth="121.0" stylesheets="@../css/items.css" text="Set Customer" textFill="#242529" />
     </children>
 </AnchorPane>
