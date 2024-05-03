@@ -56,7 +56,8 @@ public class PlaceOrdersController implements Initializable {
     public JFXTextField txtTableNum;
     public JFXButton btnPrintBill;
     public Label lblTableNum;
-    public JFXButton btnCategories;
+    @FXML
+    private JFXButton btnCategories;
     @FXML
     private JFXButton btnDashboard;
     @FXML
@@ -364,16 +365,22 @@ public class PlaceOrdersController implements Initializable {
 
     public void printBillButtonOnAction(ActionEvent actionEvent) {
         try {
-            JasperDesign design = JRXmlLoader.load(getClass().getResourceAsStream("/reports/bill.jrxml"));
             Map<String, Object> parameters = new HashMap<>();
             parameters.put("orderId", lblOrderId.getText());
             parameters.put("tblNo", txtTableNum.getText());
             parameters.put("subTotal", lblSubTotal.getText());
             parameters.put("discount", lblDiscount.getText());
+
+            JasperDesign design = JRXmlLoader.load(getClass().getResourceAsStream("/reports/bill.jrxml"));
+            JasperDesign kitchenDesign = JRXmlLoader.load(getClass().getResourceAsStream("/reports/kitchen_bill.jrxml"));
+
             JasperReport jasperReport = JasperCompileManager.compileReport(design);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, DBConnection.getInstance().getConnection());
             JasperViewer.viewReport(jasperPrint, false);
 
+            JasperReport jasperReportKitchen = JasperCompileManager.compileReport(kitchenDesign);
+            JasperPrint jasperPrintKitchen = JasperFillManager.fillReport(jasperReportKitchen, parameters, DBConnection.getInstance().getConnection());
+            JasperViewer.viewReport(jasperPrintKitchen, false);
 
         } catch (JRException | ClassNotFoundException | SQLException e) {
             // Show error message alert
