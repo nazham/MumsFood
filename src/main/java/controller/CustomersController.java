@@ -225,6 +225,8 @@ public class CustomersController implements Initializable {
     }
     public void setCustomerButtonOnAction(ActionEvent actionEvent) throws IOException {
         if (isAnyInputDataInvalid()) {
+            return;
+        }
 
             FXMLLoader loader = new FXMLLoader(getClass().getResource("/view/PlaceOrders.fxml"));
             Parent root = loader.load();
@@ -239,7 +241,7 @@ public class CustomersController implements Initializable {
             stage.setScene(new Scene(root));
             stage.show();
             placeOrderController.onNewCustomerAdded(new CustomerDTO(txtName.getText(), txtPhnNum.getText(), txtAddress.getText()));
-        }
+
     }
 
     private void clearFields() {
