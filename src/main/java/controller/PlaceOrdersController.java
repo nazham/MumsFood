@@ -351,6 +351,7 @@ public class PlaceOrdersController implements Initializable {
                 tblOrders.setDisable(true);
                 txtDiscount.setDisable(true);
                 cmbOrderType.setDisable(true);
+                txtQty.setDisable(true);
             }
         } catch (SQLException | ClassNotFoundException e) {
             TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to save order: " + e.getMessage());
@@ -372,16 +373,15 @@ public class PlaceOrdersController implements Initializable {
             parameters.put("discount", lblDiscount.getText());
 
             JasperDesign design = JRXmlLoader.load(getClass().getResourceAsStream("/reports/bill.jrxml"));
-            JasperDesign kitchenDesign = JRXmlLoader.load(getClass().getResourceAsStream("/reports/kitchen_bill.jrxml"));
-
             JasperReport jasperReport = JasperCompileManager.compileReport(design);
             JasperPrint jasperPrint = JasperFillManager.fillReport(jasperReport, parameters, DBConnection.getInstance().getConnection());
             JasperViewer.viewReport(jasperPrint, false);
-
-            JasperReport jasperReportKitchen = JasperCompileManager.compileReport(kitchenDesign);
-            JasperPrint jasperPrintKitchen = JasperFillManager.fillReport(jasperReportKitchen, parameters, DBConnection.getInstance().getConnection());
-            JasperViewer.viewReport(jasperPrintKitchen, false);
-
+            if (!(cmbOrderType.getValue().equals("Dine In"))) {
+                JasperDesign kitchenDesign = JRXmlLoader.load(getClass().getResourceAsStream("/reports/kitchen_bill.jrxml"));
+                JasperReport jasperReportKitchen = JasperCompileManager.compileReport(kitchenDesign);
+                JasperPrint jasperPrintKitchen = JasperFillManager.fillReport(jasperReportKitchen, parameters, DBConnection.getInstance().getConnection());
+                JasperViewer.viewReport(jasperPrintKitchen, false);
+            }
         } catch (JRException | ClassNotFoundException | SQLException e) {
             // Show error message alert
             TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to print bill: " + e.getMessage());
@@ -396,6 +396,7 @@ public class PlaceOrdersController implements Initializable {
         tblOrders.setDisable(false);
         btnNewCustomer.setDisable(false);
         txtDiscount.setDisable(false);
+        txtQty.setDisable(false);
         subTotal = 0.00;
 
     }
