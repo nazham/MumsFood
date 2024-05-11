@@ -8,6 +8,9 @@
 <?import javafx.scene.shape.Line?>
 <?import javafx.scene.text.*?>
 <?import java.lang.String?>
+
+
+<?import org.controlsfx.control.SearchableComboBox?>
 <AnchorPane maxHeight="1080.0" maxWidth="1920.0" minHeight="768.0" minWidth="1142.0" prefHeight="768.0" prefWidth="1142.0" stylesheets="@../css/home.css" xmlns="http://javafx.com/javafx/8.0.171" xmlns:fx="http://javafx.com/fxml/1" fx:controller="controller.PlaceOrdersController">
     <children>
         <Line endX="187.0" startX="187.0" startY="744.0" stroke="#dbdbdb33" />
@@ -164,7 +167,8 @@
         </TableView>
         <JFXButton fx:id="btnPlaceOrder" layoutX="976.0" layoutY="627.0" onAction="#placeOrderButtonOnAction" prefHeight="45.0" prefWidth="115.0" stylesheets="@../css/place-orders.css" text="Place Order" textFill="#242529" />
         <JFXButton fx:id="btnAddToCart" layoutX="963.0" layoutY="246.0" onAction="#addToCartButtonOnAction" prefHeight="45.0" prefWidth="127.0" stylesheets="@../css/place-orders.css" text="Add To Cart" textFill="#242529" />
-        <JFXComboBox fx:id="cmbItemCode" layoutX="236.0" layoutY="184.0" prefHeight="44.0" prefWidth="150.0" styleClass="cmbx" stylesheets="@../css/place-orders.css" />
+<!--        <JFXComboBox fx:id="cmbItemCode" layoutX="236.0" layoutY="184.0" prefHeight="44.0" prefWidth="150.0"  editable="true" styleClass="cmbx" stylesheets="@../css/place-orders.css" />-->
+        <SearchableComboBox fx:id="cmbItemCode" layoutX="236.0" layoutY="184.0" prefHeight="44.0" prefWidth="150.0" styleClass="cmbx" stylesheets="@../css/place-orders.css" />
         <JFXTextField fx:id="txtName" focusColor="#405aa800" layoutX="452.0" layoutY="90.0" prefHeight="48.0" prefWidth="217.0" styleClass="txt-input" stylesheets="@../css/place-orders.css" unFocusColor="#4d4d4d00" />
         <Label layoutX="758.0" layoutY="690.0" prefHeight="27.0" prefWidth="115.0" text="Total : " textFill="#f7f9ff">
             <font>
@@ -240,5 +244,6 @@
          </font>
       </Label>
       <JFXButton fx:id="btnPrintBill" layoutX="976.0" layoutY="684.0" onAction="#printBillButtonOnAction" prefHeight="45.0" prefWidth="115.0" stylesheets="@../css/place-orders.css" text="Print Bill" textFill="#242529" />
+
     </children>
 </AnchorPane>
