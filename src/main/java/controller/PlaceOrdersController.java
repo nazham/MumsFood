@@ -31,6 +31,7 @@ import net.sf.jasperreports.engine.*;
 import net.sf.jasperreports.engine.design.JasperDesign;
 import net.sf.jasperreports.engine.xml.JRXmlLoader;
 import net.sf.jasperreports.view.JasperViewer;
+import org.controlsfx.control.SearchableComboBox;
 
 import java.io.IOException;
 import java.net.URL;
@@ -94,8 +95,8 @@ public class PlaceOrdersController implements Initializable {
     private JFXButton btnPlaceOrder;
     @FXML
     private JFXButton btnAddToCart;
-    @FXML
-    private JFXComboBox cmbItemCode;
+//    @FXML
+//    private JFXComboBox<String> cmbItemCode;
     @FXML
     private JFXTextField txtName;
     @FXML
@@ -105,6 +106,9 @@ public class PlaceOrdersController implements Initializable {
     private List<ItemDTO> items;
     private CustomerDTO customer;
     private double subTotal = 0.0;
+    private ObservableList<String> itemList;
+    @FXML
+    private SearchableComboBox<String> cmbItemCode;
 
     @Override
     public void initialize(URL url, ResourceBundle resourceBundle) {
@@ -199,6 +203,7 @@ public class PlaceOrdersController implements Initializable {
                 txtTableNum.clear();
             }
         });
+
     }
 
     private boolean validateTableNum() {
@@ -206,7 +211,8 @@ public class PlaceOrdersController implements Initializable {
     }
 
     private boolean validateCode() {
-        return TextFieldUtils.isEmptyComboBox(cmbItemCode, "Item Code");
+        return false;
+//                TextFieldUtils.isEmptyComboBox(cmbItemCode, "Item Code");
     }
 
     private boolean validateOrderType() {return TextFieldUtils.isEmptyComboBox(cmbOrderType, "Order type");}
@@ -287,12 +293,12 @@ public class PlaceOrdersController implements Initializable {
     }
 
     private void loadItemCodes() {
-        ObservableList list = FXCollections.observableArrayList();
+        itemList = FXCollections.observableArrayList();
 
         for (ItemDTO itemDTO : items) {
-            list.add(itemDTO.getCode());
+            itemList.add(itemDTO.getCode());
         }
-        cmbItemCode.setItems(list);
+        cmbItemCode.setItems(itemList);
     }
 
     private void loadOrderTypes() {
@@ -361,7 +367,6 @@ public class PlaceOrdersController implements Initializable {
         if (isSaved) {
             btnPrintBill.setDisable(false);
         }
-
     }
 
     public void printBillButtonOnAction(ActionEvent actionEvent) {

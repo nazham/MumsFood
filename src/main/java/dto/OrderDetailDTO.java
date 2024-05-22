@@ -12,5 +12,4 @@ public class OrderDetailDTO {
     private int itemId;
     private int qty;
     private double unitPrice;
-
 }

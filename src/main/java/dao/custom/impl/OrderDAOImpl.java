@@ -8,6 +8,7 @@ import dao.util.HibernateUtil;
 import db.DBConnection;
 import dto.OrderDTO;
 import dto.OrderDetailDTO;
+import dto.OrdersDTO;
 import entity.*;
 import javafx.scene.control.Alert;
 import org.hibernate.Session;
@@ -25,6 +26,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.LocalTime;
 import java.time.temporal.ChronoUnit;
+import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAOImpl implements OrderDAO {
@@ -126,9 +128,43 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
+    public List<OrdersDTO> getAllOrders() throws SQLException, ClassNotFoundException{
+        List<OrdersDTO> orderDTOList = new ArrayList<>();
+        try (Session session = HibernateUtil.getSession()) {
+            Query<Orders> query = session.createQuery("FROM Orders", Orders.class);
+            List<Orders> ordersList = query.getResultList();
+
+            for (Orders orders : ordersList) {
+                OrdersDTO ordersDTO = new OrdersDTO(
+                        orders.getOrderId(),
+                        orders.getDateTime(),
+                        orders.getCustomer(),
+                        orders.getTotalAmount(),
+                        orders.getOrderType(),
+                        orders.getUser() != null ? String.valueOf(orders.getUser().getUserId()) : null,
+                        new ArrayList<>()
+                );
+
+                for (OrderDetail orderDetail : orders.getOrderDetails()) {
+                    OrderDetailDTO orderDetailDTO = new OrderDetailDTO(
+                            orderDetail.getId().getOrderId(),
+                            orderDetail.getItem().getItemId(),
+                            orderDetail.getQty(),
+                            orderDetail.getItem().getPrice()
+                    );
+                    ordersDTO.getList().add(orderDetailDTO);
+                }
+
+                orderDTOList.add(ordersDTO);
+            }
+        }
+        return orderDTOList;
+    }
+
     public List<OrderDTO> getAll() throws SQLException, ClassNotFoundException {
         return null;
     }
+
 
     @Override
     public double getTotalSalesOfCurrentDay() {
@@ -210,4 +246,6 @@ public class OrderDAOImpl implements OrderDAO {
 
         return totalSales;
     }
+
+
 }

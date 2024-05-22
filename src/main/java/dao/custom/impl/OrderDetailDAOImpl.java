@@ -36,20 +36,45 @@ public class OrderDetailDAOImpl implements OrderDetailDAO {
         return isDetailsSaved;
     }
 
+
     @Override
     public List<OrderDetailDTO> getAll() throws SQLException, ClassNotFoundException {
         List<OrderDetailDTO> orderDetailDTOList = new ArrayList<>();
         ResultSet resultSet = CrudUtil.execute("SELECT * FROM order_detail");
 
-        while(resultSet.next()) {
-            orderDetailDTOList.add(new OrderDetailDTO(
-                    resultSet.getString(1),
-                    resultSet.getInt(2),
-                    resultSet.getInt(3),
-                    resultSet.getDouble(4)
-            ));
+
+        PreparedStatement itemPstm = DBConnection.getInstance().getConnection().prepareStatement("SELECT * FROM item WHERE id=?");
+
+        while (resultSet.next()) {
+            // Retrieve the order detail attributes
+            String orderId = resultSet.getString(2);
+            int itemId = resultSet.getInt(1);
+            int qty = resultSet.getInt(3);
+
+            // Set the item ID as a parameter in the item prepared statement
+            itemPstm.setInt(1, itemId);
+
+            // Execute the query to retrieve the item details
+            ResultSet itemResultSet = itemPstm.executeQuery();
+            if (itemResultSet.next()) {
+                // Retrieve the item details
+                double unitPrice = itemResultSet.getDouble("price");
+
+                // Create the OrderDetailDTO object and add it to the list
+                orderDetailDTOList.add(new OrderDetailDTO(orderId, itemId, qty, unitPrice));
+            }
+
+            // Close the item result set
+            itemResultSet.close();
         }
+
+        // Close the prepared statement and result sets
+        itemPstm.close();
+        resultSet.close();
 
         return orderDetailDTOList;
     }
+
+
+
 }
