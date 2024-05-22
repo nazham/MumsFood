@@ -1,5 +1,6 @@
 package dto.tm;
 
+import com.jfoenix.controls.JFXButton;
 import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -10,8 +11,13 @@ import lombok.Setter;
 @AllArgsConstructor
 @NoArgsConstructor
 public class OrderDetailTM {
+    private String timeStamp;
     private String orderId;
-    private int itemCode;
-    private int qty;
-    private double unitPrice;
+    private String customer;
+    private String orderType;
+    private String user;
+    private double total;
+    private JFXButton print;
+    private JFXButton delete;
+
 }
