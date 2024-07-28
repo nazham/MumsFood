@@ -358,6 +358,7 @@ public class PlaceOrdersController implements Initializable {
                 txtDiscount.setDisable(true);
                 cmbOrderType.setDisable(true);
                 txtQty.setDisable(true);
+
             }
         } catch (SQLException | ClassNotFoundException e) {
             TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Failed to save order: " + e.getMessage());

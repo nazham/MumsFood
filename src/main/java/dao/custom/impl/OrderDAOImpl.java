@@ -15,6 +15,8 @@ import org.hibernate.Session;
 import org.hibernate.Transaction;
 import org.hibernate.exception.ConstraintViolationException;
 import org.hibernate.query.Query;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 
 import javax.persistence.PersistenceException;
 import java.sql.PreparedStatement;
@@ -30,17 +32,17 @@ import java.util.ArrayList;
 import java.util.List;
 
 public class OrderDAOImpl implements OrderDAO {
-    OrderDetailDAO orderDetailDao = new OrderDetailDAOImpl();
+    private static final Logger logger = LoggerFactory.getLogger(OrderDAOImpl.class);
 
     @Override
     public OrderDTO getLastOrder() throws SQLException, ClassNotFoundException {
         String sql = "SELECT * FROM orders ORDER BY id DESC LIMIT 1";
         PreparedStatement pstm = DBConnection.getInstance().getConnection().prepareStatement(sql);
         ResultSet resultSet = pstm.executeQuery();
-        if (resultSet.next()){
+        if (resultSet.next()) {
             Timestamp timestamp = resultSet.getTimestamp(2);
             LocalDateTime dateTime = timestamp.toLocalDateTime();
-            return  new OrderDTO(
+            return new OrderDTO(
                     resultSet.getString(1),
                     dateTime,
                     Integer.parseInt(resultSet.getString(3)),
@@ -66,24 +68,35 @@ public class OrderDAOImpl implements OrderDAO {
         Session session = HibernateUtil.getSession();
         Transaction transaction = session.beginTransaction();
         try {
+            if (isInvalidOrder(dto)) {
+                TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Discrepancy found in order totals for Order ID: " + dto.getOrderId() + "Total Amount in DTO: " + dto.getTotalAmount() + "Calculated Total: " + calculateOrderTotal(dto.getList()));
+                if (transaction.isActive()) {
+                    transaction.rollback();
+                }
+                session.close();
+                return false;
+            }
+
             Orders orders = new Orders(
                     dto.getOrderId(),
                     dto.getDateTime(),
                     dto.getOrderType(),
                     dto.getTotalAmount()
             );
-            orders.setCustomer(session.find(Customer.class,dto.getCusId()));
+            orders.setCustomer(session.find(Customer.class, dto.getCusId()));
+            logger.debug("Saving Order: {}", orders);
             session.save(orders);
 
             List<OrderDetailDTO> list = dto.getList(); //dto type
 
-            for (OrderDetailDTO detailDto:list) {
+            for (OrderDetailDTO detailDto : list) {
                 OrderDetail orderDetail = new OrderDetail(
                         new OrderDetailKey(detailDto.getOrderId(), detailDto.getItemId()),
                         session.find(Item.class, detailDto.getItemId()),
                         orders,
                         detailDto.getQty()
                 );
+                logger.debug("Saving Order Detail: {}", orderDetail);
                 session.save(orderDetail);
             }
 
@@ -92,6 +105,7 @@ public class OrderDAOImpl implements OrderDAO {
             return true;
         } catch (ConstraintViolationException ex) {
             // Log specific message for ConstraintViolationException
+            logger.error("Constraint violation error: {}", ex.getMessage());
             TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Constraint violation error: " + ex.getMessage());
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -100,6 +114,7 @@ public class OrderDAOImpl implements OrderDAO {
             return false;
         } catch (PersistenceException ex) {
             // Log specific message for PersistenceException
+            logger.error("Persistence error: {}", ex.getMessage());
             TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Persistence error: " + ex.getMessage());
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -108,6 +123,7 @@ public class OrderDAOImpl implements OrderDAO {
             return false;
         } catch (Exception ex) {
             // Log generic message for any other exception
+            logger.error("Error: {}", ex.getMessage());
             TextFieldUtils.showAlert(Alert.AlertType.ERROR, "Error", "Error: " + ex.getMessage());
             if (transaction.isActive()) {
                 transaction.rollback();
@@ -116,6 +132,29 @@ public class OrderDAOImpl implements OrderDAO {
             return false;
         }
     }
+
+    private boolean isInvalidOrder(OrderDTO dto) {
+        double calculatedTotal = calculateOrderTotal(dto.getList());
+        if (dto.getTotalAmount() != calculatedTotal) {
+            logger.warn("Discrepancy found for Order ID: {}. Total Amount in DTO: {}, Calculated Total: {}",
+                    dto.getOrderId(), dto.getTotalAmount(), calculatedTotal);
+            return true;
+        }
+        return false;
+    }
+
+    private double calculateOrderTotal(List<OrderDetailDTO> orderItems) {
+        Session session = HibernateUtil.getSession();
+        double total = 0.0;
+        for (OrderDetailDTO item : orderItems) {
+            Item itemEntity = session.find(Item.class, item.getItemId());
+            if (itemEntity != null) {
+                total += item.getQty() * itemEntity.getPrice();
+            }
+        }
+        return total;
+    }
+
 
     @Override
     public boolean update(OrderDTO entity) throws SQLException, ClassNotFoundException {
@@ -128,7 +167,7 @@ public class OrderDAOImpl implements OrderDAO {
     }
 
     @Override
-    public List<OrdersDTO> getAllOrders() throws SQLException, ClassNotFoundException{
+    public List<OrdersDTO> getAllOrders() throws SQLException, ClassNotFoundException {
         List<OrdersDTO> orderDTOList = new ArrayList<>();
         try (Session session = HibernateUtil.getSession()) {
             Query<Orders> query = session.createQuery("FROM Orders", Orders.class);
@@ -181,6 +220,7 @@ public class OrderDAOImpl implements OrderDAO {
             return totalSales != null ? totalSales : 0.0;
         }
     }
+
     @Override
     public double getTotalSalesOfCurrentWeek() throws SQLException {
         Session session = HibernateUtil.getSession();
